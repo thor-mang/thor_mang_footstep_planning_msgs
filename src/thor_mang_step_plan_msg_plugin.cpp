@@ -229,7 +229,7 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     transformStepPlan(_step_plan, transform);
 
     // set correct states
-    if (ref_step_data.TimeData.bWalkingState != InWalking)
+    if (ref_step_data.TimeData.bWalkingState == InWalkingEnding)
     {
       ref_step_data.TimeData.bWalkingState = InWalkingStarting;
       ref_step_data.TimeData.dAbsStepTime += 2000;
