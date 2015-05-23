@@ -234,6 +234,8 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
       ref_step_data.TimeData.bWalkingState = InWalkingStarting;
       ref_step_data.TimeData.dAbsStepTime += 2000;
     }
+    else
+      step_data_list.clear();
 
     step_data_curr = ref_step_data;
   }
