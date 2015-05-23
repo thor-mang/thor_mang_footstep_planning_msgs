@@ -13,8 +13,6 @@ ThorMangStepPlanMsgPlugin::~ThorMangStepPlanMsgPlugin()
 {
 }
 
-
-
 void initStepData(Thor::StepData& step_data)
 {
   step_data.PositionData.bMovingFoot = NFootMove;
@@ -179,14 +177,16 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     tf::Transform transform = pose.inverse();
     transformStepPlan(_step_plan, transform);
 
-    // init with current position
+    // estimate current position
     initStepData(step_data_curr);
     toThor(_step_plan.start.left.pose, step_data_curr.PositionData.stLeftFootPosition);
     toThor(_step_plan.start.right.pose, step_data_curr.PositionData.stRightFootPosition);
     step_data_curr.PositionData.stBodyPosition.z = BODY_HEIGHT + std::min(step_data_curr.PositionData.stLeftFootPosition.z, step_data_curr.PositionData.stRightFootPosition.z);
     step_data_curr.PositionData.stBodyPosition.yaw = 0.5*(step_data_curr.PositionData.stRightFootPosition.yaw + step_data_curr.PositionData.stLeftFootPosition.yaw);
     step_data_curr.TimeData.bWalkingState = InWalkingStarting;
+    step_data_curr.TimeData.dAbsStepTime = 3000;
 
+    // add start walking entry
     step_data_list.push_back(step_data_curr);
   }
   // stitch plan
@@ -232,7 +232,7 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     if (ref_step_data.TimeData.bWalkingState != InWalking)
     {
       ref_step_data.TimeData.bWalkingState = InWalkingStarting;
-      ref_step_data.TimeData.dAbsStepTime = 3000;
+      ref_step_data.TimeData.dAbsStepTime += 2000;
     }
 
     step_data_curr = ref_step_data;
@@ -242,7 +242,7 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
   {
     msgs::Step step = *itr;
 
-    // skip inital step of plan
+    // skip inital step of step plan
     if (step.step_index == 0)
       continue;
 
