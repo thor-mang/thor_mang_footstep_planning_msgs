@@ -162,8 +162,11 @@ bool operator<<(Thor::StepData& step_data, const msgs::Step& step)
 
 bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPlan& step_plan)
 {
-  if (step_plan.steps.size() < 2)
+  if (step_plan.steps.size() < 1)
+  {
+    ROS_ERROR("Got insufficient steps!");
     return false;
+  }
 
   msgs::StepPlan _step_plan = step_plan;
   Thor::StepData step_data_curr;
@@ -184,7 +187,7 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     step_data_curr.PositionData.stBodyPosition.z = BODY_HEIGHT + std::min(step_data_curr.PositionData.stLeftFootPosition.z, step_data_curr.PositionData.stRightFootPosition.z);
     step_data_curr.PositionData.stBodyPosition.yaw = 0.5*(step_data_curr.PositionData.stRightFootPosition.yaw + step_data_curr.PositionData.stLeftFootPosition.yaw);
     step_data_curr.TimeData.bWalkingState = InWalkingStarting;
-    step_data_curr.TimeData.dAbsStepTime = 3000;
+    step_data_curr.TimeData.dAbsStepTime = 2000;
 
     // add start walking entry
     step_data_list.push_back(step_data_curr);
@@ -228,26 +231,22 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     // transform plan to be relative to thor's reference foot pose
     transformStepPlan(_step_plan, transform);
 
-    // set correct states
+    // check if initial state is needed
     if (ref_step_data.TimeData.bWalkingState == InWalkingEnding)
     {
       ref_step_data.TimeData.bWalkingState = InWalkingStarting;
       ref_step_data.TimeData.dAbsStepTime += 2000;
     }
-    else
+    else // already walking, initial state isn't needed
       step_data_list.clear();
 
     step_data_curr = ref_step_data;
   }
 
-  for (std::vector<msgs::Step>::const_iterator itr = _step_plan.steps.begin(); itr != _step_plan.steps.end(); itr++)
+  std::vector<msgs::Step>::const_iterator itr = _step_plan.steps.begin();
+  itr++; // skip inital step of step plan
+  for (; itr != _step_plan.steps.end(); itr++)
   {
-    msgs::Step step = *itr;
-
-    // skip inital step of step plan
-    if (step.step_index == 0)
-      continue;
-
     Thor::StepData step_data_prev = step_data_curr;
 
     // update with next step
