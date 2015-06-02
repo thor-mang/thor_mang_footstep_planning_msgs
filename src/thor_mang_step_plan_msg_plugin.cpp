@@ -224,6 +224,7 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     // ref foot pose of plan
     tf::Pose ref_plan_foot_pose;
     tf::poseMsgToTF(step.foot.pose, ref_plan_foot_pose);
+    ref_plan_foot_pose.setRotation(tf::createQuaternionFromYaw(tf::getYaw(ref_plan_foot_pose.getRotation())));
 
     // get transformation 'footstep plan start' -> 'thor start foot'
     tf::Transform transform = ref_thor_foot_pose * ref_plan_foot_pose.inverse();
