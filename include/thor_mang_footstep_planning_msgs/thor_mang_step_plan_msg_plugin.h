@@ -64,13 +64,13 @@ void transformStepPlan(msgs::StepPlan& step_plan, tf::Transform transform);
 template<typename T>
 inline bool operator<<(std::vector<uint8_t>& data, const T& in)
 {
-  return vigir_footstep_planning::operator<<(data, in);
+  return vigir_generic_params::operator<<(data, in);
 }
 
 template<typename T>
 inline bool operator<<(T& out, const std::vector<uint8_t>& data)
 {
-  return vigir_footstep_planning::operator<<(out, data);
+  return vigir_generic_params::operator<<(out, data);
 }
 
 // conversions
