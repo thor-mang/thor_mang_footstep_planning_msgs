@@ -1,4 +1,6 @@
-#include <thor_mang_footstep_planning_msgs/thor_mang_step_plan_msg_plugin.h>
+#include <pluginlib/class_list_macros.h>
+
+#include <thor_mang_footstep_planning_plugins/thor_mang_step_plan_msg_plugin.h>
 
 namespace thor_mang_footstep_planning
 {
@@ -397,3 +399,5 @@ std::string toString(const Thor::StepData& step_data)
   return s.str();
 }
 }
+
+PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin, vigir_footstep_planning::StepPlanMsgPlugin)

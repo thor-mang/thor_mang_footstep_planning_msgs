@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>thor_mang_footstep_planning_msgs</name>
-  <version>0.0.0</version>
-  <description>The thor_mang_footstep_planning_msgs package</description>
+  <name>thor_mang_footstep_planning_plugins</name>
+  <version>0.1.0</version>
+  <description>The thor_mang_footstep_planning_plugins package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/thor_mang_footstep_planning_msgs</url> -->
+  <!-- <url type="website">http://wiki.ros.org/thor_mang_footstep_planning_plugins</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -45,12 +45,14 @@
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>vigir_pluginlib</build_depend>
   <build_depend>vigir_footstep_planning_msgs</build_depend>
   <build_depend>vigir_footstep_planning_lib</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>vigir_pluginlib</run_depend>
   <run_depend>vigir_footstep_planning_msgs</run_depend>
   <run_depend>vigir_footstep_planning_lib</run_depend>
 
@@ -61,7 +63,9 @@
     <!-- <metapackage/> -->
 
     <!-- Other tools can request additional information be placed here -->
-    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lthor_mang_footstep_planning_msgs" />
+    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lthor_mang_footstep_planning_plugins" />
+
+    <vigir_footstep_planning_lib plugin="${prefix}/thor_mang_plugins.xml" />
 
   </export>
 </package>

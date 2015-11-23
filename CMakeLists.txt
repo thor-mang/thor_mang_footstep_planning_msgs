@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(thor_mang_footstep_planning_msgs)
+project(thor_mang_footstep_planning_plugins)
 
 #set(CMAKE_BUILD_TYPE Debug)
 #set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -7,7 +7,7 @@ project(thor_mang_footstep_planning_msgs)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs vigir_footstep_planning_msgs vigir_footstep_planning_lib)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs vigir_pluginlib vigir_footstep_planning_msgs vigir_footstep_planning_lib)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -85,8 +85,8 @@ link_directories(../../thor_mang_libs/lib)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES thor_mang_footstep_planning_msgs
-  CATKIN_DEPENDS roscpp rospy std_msgs vigir_footstep_planning_msgs vigir_footstep_planning_lib
+  LIBRARIES thor_mang_footstep_planning_plugins
+  CATKIN_DEPENDS roscpp rospy std_msgs vigir_pluginlib vigir_footstep_planning_msgs vigir_footstep_planning_lib
 #  DEPENDS system_lib
 )
 
@@ -100,10 +100,14 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 ## Specify additional locations of header files
 set(HEADERS
+  include/${PROJECT_NAME}/thor_mang_heuristic.h
+  include/${PROJECT_NAME}/thor_mang_reachability.h
   include/${PROJECT_NAME}/thor_mang_step_plan_msg_plugin.h
 )
 
 set(SOURCES
+  src/thor_mang_heuristic.cpp
+  src/thor_mang_reachability.cpp
   src/thor_mang_step_plan_msg_plugin.cpp
 )
 
@@ -112,7 +116,7 @@ add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 ## Declare a cpp executable
-# add_executable(thor_mang_footstep_planning_msgs_node src/thor_mang_footstep_planning_msgs_node.cpp)
+# add_executable(thor_mang_footstep_planning_plugins_node src/thor_mang_footstep_planning_plugins_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
