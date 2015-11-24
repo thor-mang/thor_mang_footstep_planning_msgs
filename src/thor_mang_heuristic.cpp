@@ -1,6 +1,8 @@
+#include <thor_mang_footstep_planning_plugins/thor_mang_heuristic.h>
+
 #include <pluginlib/class_list_macros.h>
 
-#include <thor_mang_footstep_planning_plugins/thor_mang_heuristic.h>
+
 
 namespace thor_mang_footstep_planning
 {
