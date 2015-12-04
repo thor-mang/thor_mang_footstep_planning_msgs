@@ -38,7 +38,7 @@
 // THOR-OP includes
 #include <framework/Thor.h>
 
-#include <vigir_footstep_planning_lib/plugins/step_plan_msg_plugin.h>
+#include <vigir_footstep_planning_basic_plugins/step_plan_msg_plugin.h>
 
 #define BODY_HEIGHT 650.0
 

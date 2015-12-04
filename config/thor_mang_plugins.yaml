@@ -1,17 +1,17 @@
 thor_mang_reachability:
   type_class_package: thor_mang_footstep_planning_plugins
   type_class: thor_mang_footstep_planning::ThorMangReachability
-  base_class_package: vigir_footstep_planning_lib
+  base_class_package: vigir_footstep_planning_basic_plugins
   base_class: vigir_footstep_planning::ReachabilityPlugin
 
 thor_mang_heuristic:
   type_class_package: thor_mang_footstep_planning_plugins
   type_class: thor_mang_footstep_planning::ThorMangHeuristic
-  base_class_package: vigir_footstep_planning_lib
+  base_class_package: vigir_footstep_planning_basic_plugins
   base_class: vigir_footstep_planning::HeuristicPlugin
 
 thor_mang_step_plan_msg_plugin:
   type_class_package: thor_mang_footstep_planning_plugins
   type_class: thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin
-  base_class_package: vigir_footstep_planning_lib
+  base_class_package: vigir_footstep_planning_basic_plugins
   base_class: vigir_footstep_planning::StepPlanMsgPlugin
