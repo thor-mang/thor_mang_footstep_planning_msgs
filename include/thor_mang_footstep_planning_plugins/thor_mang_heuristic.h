@@ -43,7 +43,6 @@ class ThorMangHeuristic
   : public HeuristicPlugin
 {
 public:
-  ThorMangHeuristic(const vigir_generic_params::ParameterSet& params);
   ThorMangHeuristic();
 
   void loadParams(const vigir_generic_params::ParameterSet& params) override;

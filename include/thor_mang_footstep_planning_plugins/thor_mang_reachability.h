@@ -47,7 +47,6 @@ class ThorMangReachability
   : public ReachabilityPlugin
 {
 public:
-  ThorMangReachability(const vigir_generic_params::ParameterSet& params);
   ThorMangReachability();
 
   void loadParams(const vigir_generic_params::ParameterSet& params) override;

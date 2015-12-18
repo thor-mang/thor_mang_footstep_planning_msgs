@@ -8,11 +8,6 @@ namespace thor_mang_footstep_planning
 {
 using namespace vigir_footstep_planning;
 
-ThorMangReachability::ThorMangReachability(const vigir_generic_params::ParameterSet& params)
-  : ReachabilityPlugin("thor_mang_reachability", params)
-{
-}
-
 ThorMangReachability::ThorMangReachability()
   : ReachabilityPlugin("thor_mang_reachability")
 {
