@@ -54,12 +54,8 @@ public:
   bool isReachable(const State& current, const State& next) const override;
   bool isReachable(const State& left_foot, const State& right_foot, const State& swing_foot) const override;
 
-  // typedefs
-  typedef boost::shared_ptr<ThorMangReachability> Ptr;
-  typedef boost::shared_ptr<const ThorMangReachability> ConstPtr;
-
 protected:
-  double foot_seperation;
+  double foot_seperation_;
 };
 }
 

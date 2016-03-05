@@ -16,7 +16,7 @@ ThorMangReachability::ThorMangReachability()
 void ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& /*params*/)
 {
   ros::NodeHandle nh;
-  nh.getParam("foot/separation", foot_seperation);
+  nh.getParam("foot/separation", foot_seperation_);
 }
 
 bool ThorMangReachability::isReachable(const State& /*current*/, const State& /*next*/) const
