@@ -13,10 +13,15 @@ ThorMangReachability::ThorMangReachability()
 {
 }
 
-void ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& /*params*/)
+bool ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& params)
 {
+  if (!ReachabilityPlugin::loadParams(params))
+    return false;
+
   ros::NodeHandle nh;
   nh.getParam("foot/separation", foot_seperation_);
+
+  return true;
 }
 
 bool ThorMangReachability::isReachable(const State& /*current*/, const State& /*next*/) const
