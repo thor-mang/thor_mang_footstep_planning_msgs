@@ -1,7 +1,5 @@
 #include <thor_mang_footstep_planning_plugins/thor_mang_reachability.h>
 
-#include <pluginlib/class_list_macros.h>
-
 
 
 namespace thor_mang_footstep_planning
@@ -13,9 +11,9 @@ ThorMangReachability::ThorMangReachability()
 {
 }
 
-bool ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& params)
+bool ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& global_params)
 {
-  if (!ReachabilityPlugin::loadParams(params))
+  if (!ReachabilityPlugin::loadParams(global_params))
     return false;
 
   ros::NodeHandle nh;
@@ -71,4 +69,5 @@ bool ThorMangReachability::isReachable(const State& left_foot, const State& righ
 }
 }
 
+#include <pluginlib/class_list_macros.h>
 PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangReachability, vigir_footstep_planning::ReachabilityPlugin)
