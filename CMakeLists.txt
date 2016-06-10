@@ -14,12 +14,6 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs vigir_pluginlib vi
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-# THOR-OP interface library
-include_directories(../../thor_mang_libs/include)
-include_directories(../../thor_mang_libs/include/framework)
-include_directories(../../thor_mang_libs/include/linux)
-link_directories(../../thor_mang_libs/lib)
-
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
@@ -125,7 +119,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} thor)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 #############
 ## Install ##

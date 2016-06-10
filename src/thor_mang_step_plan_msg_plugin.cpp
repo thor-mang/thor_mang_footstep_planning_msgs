@@ -16,7 +16,7 @@ ThorMangStepPlanMsgPlugin::ThorMangStepPlanMsgPlugin()
 ThorMangStepPlanMsgPlugin::~ThorMangStepPlanMsgPlugin()
 {
 }
-
+/*
 void initStepData(Thor::StepData& step_data)
 {
   step_data.PositionData.bMovingFoot = NFootMove;
@@ -399,7 +399,7 @@ std::string toString(const Thor::StepData& step_data)
   s << "[Sigmo]" << step_data.TimeData.sigmoid_distortion_x << " " << step_data.TimeData.sigmoid_distortion_y << " " << step_data.TimeData.sigmoid_distortion_z << " " << step_data.TimeData.sigmoid_distortion_roll << " " << step_data.TimeData.sigmoid_distortion_pitch << " " << step_data.TimeData.sigmoid_distortion_yaw << std::endl;
 
   return s.str();
-}
+}*/
 }
 
 PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin, vigir_footstep_planning::StepPlanMsgPlugin)

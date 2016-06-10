@@ -35,9 +35,6 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
 
-// THOR-OP includes
-#include <framework/Thor.h>
-
 #include <vigir_footstep_planning_plugins/step_plan_msg_plugin.h>
 
 #define BODY_HEIGHT 650.0
@@ -55,7 +52,7 @@ public:
   ThorMangStepPlanMsgPlugin();
   virtual ~ThorMangStepPlanMsgPlugin();
 };
-
+/*
 void initStepData(Thor::StepData& step_data);
 
 void transformStepPlan(msgs::StepPlan& step_plan, tf::Transform transform);
@@ -88,7 +85,7 @@ void toThor(const geometry_msgs::Pose& pose_in, Thor::Pose3D& pose_out);
 void toRos(const Thor::Pose3D& pose_in, tf::Pose& pose_out);
 void toRos(const Thor::Pose3D& pose_in, geometry_msgs::Pose& pose_out);
 
-std::string toString(const Thor::StepData& step_data);
+std::string toString(const Thor::StepData& step_data);*/
 }
 
 #endif
