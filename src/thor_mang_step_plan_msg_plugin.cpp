@@ -1,6 +1,8 @@
 #include <thor_mang_footstep_planning_plugins/thor_mang_step_plan_msg_plugin.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <vigir_footstep_planning_msgs/step_plan.h>
+
+#include <thormang3_walking_module/WalkingModuleCommon.h>
 
 
 
@@ -16,44 +18,46 @@ ThorMangStepPlanMsgPlugin::ThorMangStepPlanMsgPlugin()
 ThorMangStepPlanMsgPlugin::~ThorMangStepPlanMsgPlugin()
 {
 }
-/*
-void initStepData(Thor::StepData& step_data)
+
+void initStepData(ROBOTIS::StepData& step_data)
 {
-  step_data.PositionData.bMovingFoot = NFootMove;
+  step_data.PositionData.bMovingFoot = ROBOTIS::MovingFootFlag::NFootMove;
   step_data.PositionData.dFootHeight = 0.0;
   step_data.PositionData.dZ_Swap_Amplitude = 0.0;
 
-  step_data.PositionData.dShoulderSwingGain = 0.05;
-  step_data.PositionData.dElbowSwingGain = 0.1;
+  step_data.PositionData.dShoulderSwingGain = 0.0;
+  step_data.PositionData.dElbowSwingGain = 0.0;
 
   step_data.PositionData.stLeftFootPosition.x = 0.0;
-  step_data.PositionData.stLeftFootPosition.y = 0.0;
+  step_data.PositionData.stLeftFootPosition.y = 0.093;
   step_data.PositionData.stLeftFootPosition.z = 0.0;
   step_data.PositionData.stLeftFootPosition.roll = 0.0;
   step_data.PositionData.stLeftFootPosition.pitch = 0.0;
   step_data.PositionData.stLeftFootPosition.yaw = 0.0;
 
   step_data.PositionData.stRightFootPosition.x = 0.0;
-  step_data.PositionData.stRightFootPosition.y = 0.0;
+  step_data.PositionData.stRightFootPosition.y = -0.093;
   step_data.PositionData.stRightFootPosition.z = 0.0;
   step_data.PositionData.stRightFootPosition.roll = 0.0;
   step_data.PositionData.stRightFootPosition.pitch = 0.0;
   step_data.PositionData.stRightFootPosition.yaw = 0.0;
 
-  step_data.PositionData.stBodyPosition.z = BODY_HEIGHT;
+  step_data.PositionData.stBodyPosition.z = 0.63;
   step_data.PositionData.stBodyPosition.roll = 0.0;
   step_data.PositionData.stBodyPosition.pitch = 0.0;
-  step_data.PositionData.stBodyPosition.yaw = 0.5*(step_data.PositionData.stRightFootPosition.yaw + step_data.PositionData.stLeftFootPosition.yaw);
+  step_data.PositionData.stBodyPosition.yaw = 0.0;
 
-  step_data.TimeData.bWalkingState = InWalking;
-  step_data.TimeData.dAbsStepTime = 2000;
+  step_data.TimeData.bWalkingState = ROBOTIS::WalkingStateFlag::InWalkingStarting;
+  step_data.TimeData.dAbsStepTime = 3.6;
   step_data.TimeData.dDSPratio = 0.2;
+
   step_data.TimeData.sigmoid_ratio_x = 1.0;
   step_data.TimeData.sigmoid_ratio_y = 1.0;
   step_data.TimeData.sigmoid_ratio_z = 1.0;
   step_data.TimeData.sigmoid_ratio_roll = 1.0;
   step_data.TimeData.sigmoid_ratio_pitch = 1.0;
   step_data.TimeData.sigmoid_ratio_yaw = 1.0;
+
   step_data.TimeData.sigmoid_distortion_x = 1.0;
   step_data.TimeData.sigmoid_distortion_y = 1.0;
   step_data.TimeData.sigmoid_distortion_z = 1.0;
@@ -62,109 +66,81 @@ void initStepData(Thor::StepData& step_data)
   step_data.TimeData.sigmoid_distortion_yaw = 1.0;
 }
 
-void transformStepPlan(msgs::StepPlan& step_plan, tf::Transform transform)
+bool operator<<(ROBOTIS::StepData& step_data, const msgs::Step& step)
 {
-  tf::Pose pose;
-
-  // start pose
-  tf::poseMsgToTF(step_plan.start.left.pose, pose);
-  pose = transform * pose;
-  tf::poseTFToMsg(pose, step_plan.start.left.pose);
-
-  tf::poseMsgToTF(step_plan.start.right.pose, pose);
-  pose = transform * pose;
-  tf::poseTFToMsg(pose, step_plan.start.right.pose);
-
-  // goal pose
-  tf::poseMsgToTF(step_plan.goal.left.pose, pose);
-  pose = transform * pose;
-  tf::poseTFToMsg(pose, step_plan.goal.left.pose);
-
-  tf::poseMsgToTF(step_plan.goal.right.pose, pose);
-  pose = transform * pose;
-  tf::poseTFToMsg(pose, step_plan.goal.right.pose);
-
-  // entire plan
-  for (std::vector<msgs::Step>::iterator itr = step_plan.steps.begin(); itr != step_plan.steps.end(); itr++)
-  {
-    msgs::Step& step = *itr;
-
-    tf::poseMsgToTF(step.foot.pose, pose);
-    pose = transform * pose;
-    tf::poseTFToMsg(pose, step.foot.pose);
-  }
-}
-
-
-
-bool operator<<(Thor::StepData& step_data, const msgs::Step& step)
-{
-  step_data.PositionData.bMovingFoot = step.foot.foot_index == msgs::Foot::LEFT ? static_cast<int>(LFootMove) : static_cast<int>(RFootMove);
-  step_data.PositionData.dFootHeight = step.swing_height * 1000.0;
-  step_data.PositionData.dZ_Swap_Amplitude = 10.0;
+  step_data.PositionData.bMovingFoot = step.foot.foot_index == msgs::Foot::LEFT ? static_cast<int>(ROBOTIS::MovingFootFlag::LFootMove) : static_cast<int>(ROBOTIS::MovingFootFlag::RFootMove);
+  step_data.PositionData.dFootHeight = step.swing_height;
+  step_data.PositionData.dZ_Swap_Amplitude = 0.01;
 
 //  step_data.PositionData.dShoulderSwingGain = 0.05;
 //  step_data.PositionData.dElbowSwingGain = 0.1;
 
-  Thor::Pose3D& swing_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.PositionData.stLeftFootPosition : step_data.PositionData.stRightFootPosition;
-  Thor::Pose3D& stand_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.PositionData.stRightFootPosition : step_data.PositionData.stLeftFootPosition;
+  ROBOTIS::Pose3D& swing_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.PositionData.stLeftFootPosition : step_data.PositionData.stRightFootPosition;
+  ROBOTIS::Pose3D& stand_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.PositionData.stRightFootPosition : step_data.PositionData.stLeftFootPosition;
 
-  double foot_dz = swing_foot.z;
+//  double foot_dz = swing_foot.z;
 
   toThor(step.foot.pose, swing_foot);
 
-  foot_dz = swing_foot.z - foot_dz;
+//  foot_dz = swing_foot.z - foot_dz;
 
-  // no significant change in z
-  if (std::abs(foot_dz) < 0.1)
-  {
-    step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + stand_foot.z;
-  }
-  // step up
-  else if (foot_dz > 0.0)
-  {
-    // if stand foot has already stepped up then don't lift immediatly body to full high
-    if (stand_foot.z > swing_foot.z - foot_dz)
-    {
-      step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + 0.25*(stand_foot.z+swing_foot.z);
-    }
-    else
-    {
-      step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + stand_foot.z;
-    }
-  }
-  // step down
-  else
-  {
-    step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + swing_foot.z;
-  }
+//  // no significant change in z
+//  if (std::abs(foot_dz) < 0.1)
+//  {
+//    step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + stand_foot.z;
+//  }
+//  // step up
+//  else if (foot_dz > 0.0)
+//  {
+//    // if stand foot has already stepped up then don't lift immediatly body to full high
+//    if (stand_foot.z > swing_foot.z - foot_dz)
+//    {
+//      step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + 0.25*(stand_foot.z+swing_foot.z);
+//    }
+//    else
+//    {
+//      step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + stand_foot.z;
+//    }
+//  }
+//  // step down
+//  else
+//  {
+//    step_data.PositionData.stBodyPosition.z = BODY_HEIGHT + swing_foot.z;
+//  }
 
-  step_data.PositionData.dFootHeight = step_data.PositionData.dFootHeight + foot_dz;
+//  step_data.PositionData.dFootHeight = step_data.PositionData.dFootHeight + foot_dz;
 
-//  step_data.PositionData.stBodyPosition.roll = 0.0;
-//  step_data.PositionData.stBodyPosition.pitch = 0.0;
-  step_data.PositionData.stBodyPosition.yaw = 0.5*(step_data.PositionData.stRightFootPosition.yaw + step_data.PositionData.stLeftFootPosition.yaw);
+  step_data.PositionData.stBodyPosition.z = 0.63;
+  step_data.PositionData.stBodyPosition.roll = 0.0;
+  step_data.PositionData.stBodyPosition.pitch = 0.0;
+  step_data.PositionData.stBodyPosition.yaw = 0.5*(step_data.PositionData.stLeftFootPosition.yaw + step_data.PositionData.stRightFootPosition.yaw);
 
-  step_data.TimeData.bWalkingState = InWalking;
-  step_data.TimeData.dAbsStepTime = step.step_duration * 1000.0;
-  step_data.TimeData.dDSPratio = 0.2;
-//  step_data.TimeData.sigmoid_ratio_x = 1.0;
-//  step_data.TimeData.sigmoid_ratio_y = 1.0;
-//  step_data.TimeData.sigmoid_ratio_z = 1.0;
-//  step_data.TimeData.sigmoid_ratio_roll = 1.0;
-//  step_data.TimeData.sigmoid_ratio_pitch = 1.0;
-//  step_data.TimeData.sigmoid_ratio_yaw = 1.0;
-//  step_data.TimeData.sigmoid_distortion_x = 1.0;
-//  step_data.TimeData.sigmoid_distortion_y = 1.0;
-//  step_data.TimeData.sigmoid_distortion_z = 1.0;
-//  step_data.TimeData.sigmoid_distortion_roll = 1.0;
-//  step_data.TimeData.sigmoid_distortion_pitch = 1.0;
-//  step_data.TimeData.sigmoid_distortion_yaw = 1.0;
+  step_data.TimeData.bWalkingState = ROBOTIS::WalkingStateFlag::InWalking;
+  step_data.TimeData.dAbsStepTime = step.step_duration;
+//  step_data.TimeData.dDSPratio = 0.2;
+
+  step_data.TimeData.sigmoid_ratio_x = 1.0;
+  step_data.TimeData.sigmoid_ratio_y = 1.0;
+  step_data.TimeData.sigmoid_ratio_z = 1.0;
+  step_data.TimeData.sigmoid_ratio_roll = 1.0;
+  step_data.TimeData.sigmoid_ratio_pitch = 1.0;
+  step_data.TimeData.sigmoid_ratio_yaw = 1.0;
+
+  step_data.TimeData.sigmoid_distortion_x = 1.0;
+  step_data.TimeData.sigmoid_distortion_y = 1.0;
+  step_data.TimeData.sigmoid_distortion_z = 1.0;
+  step_data.TimeData.sigmoid_distortion_roll = 1.0;
+  step_data.TimeData.sigmoid_distortion_pitch = 1.0;
+  step_data.TimeData.sigmoid_distortion_yaw = 1.0;
+
+  step_data.PositionData.dShoulderSwingGain	= 0;
+  step_data.PositionData.dElbowSwingGain	= 0;
+  step_data.PositionData.dWaistPitchAngle	= 0;
 
   return true;
 }
 
-bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPlan& step_plan)
+bool operator<<(std::vector<ROBOTIS::StepData>& step_data_list, const msgs::StepPlan& step_plan)
 {
   if (step_plan.steps.size() < 1)
   {
@@ -173,7 +149,7 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
   }
 
   msgs::StepPlan _step_plan = step_plan;
-  Thor::StepData step_data_curr;
+  ROBOTIS::StepData step_data_curr;
 
   // generate new plan from scratch
   if (step_data_list.empty())
@@ -182,15 +158,15 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     tf::Pose pose;
     tf::poseMsgToTF(step_plan.steps[0].foot.pose, pose);
     tf::Transform transform = pose.inverse();
-    transformStepPlan(_step_plan, transform);
+    StepPlan::transformStepPlan(_step_plan, transform);
 
     // estimate current position
     initStepData(step_data_curr);
     toThor(_step_plan.start.left.pose, step_data_curr.PositionData.stLeftFootPosition);
     toThor(_step_plan.start.right.pose, step_data_curr.PositionData.stRightFootPosition);
-    step_data_curr.PositionData.stBodyPosition.z = BODY_HEIGHT + std::min(step_data_curr.PositionData.stLeftFootPosition.z, step_data_curr.PositionData.stRightFootPosition.z);
-    step_data_curr.PositionData.stBodyPosition.yaw = 0.5*(step_data_curr.PositionData.stRightFootPosition.yaw + step_data_curr.PositionData.stLeftFootPosition.yaw);
-    step_data_curr.TimeData.bWalkingState = InWalkingStarting;
+    //step_data_curr.PositionData.stBodyPosition.z = BODY_HEIGHT + std::min(step_data_curr.PositionData.stLeftFootPosition.z, step_data_curr.PositionData.stRightFootPosition.z);
+    //step_data_curr.PositionData.stBodyPosition.yaw = 0.5*(step_data_curr.PositionData.stRightFootPosition.yaw + step_data_curr.PositionData.stLeftFootPosition.yaw);
+    step_data_curr.TimeData.bWalkingState = ROBOTIS::WalkingStateFlag::InWalkingStarting;
     step_data_curr.TimeData.dAbsStepTime = 2000;
 
     // add start walking entry
@@ -199,21 +175,21 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
   // stitch plan
   else
   {
-    Thor::StepData& ref_step_data = step_data_list.back();
+    ROBOTIS::StepData& ref_step_data = step_data_list.back();
     const msgs::Step& step = step_plan.steps[0];
 
     // determine thor's internal start foot position
-    Thor::Pose3D ref_thor_foot;
-    if (ref_step_data.PositionData.bMovingFoot == NFootMove)
+    ROBOTIS::Pose3D ref_thor_foot;
+    if (ref_step_data.PositionData.bMovingFoot == ROBOTIS::MovingFootFlag::NFootMove)
     {
       if (step.foot.foot_index == msgs::Foot::RIGHT)
         ref_thor_foot = ref_step_data.PositionData.stRightFootPosition;
       else
         ref_thor_foot = ref_step_data.PositionData.stLeftFootPosition;
     }
-    else if (ref_step_data.PositionData.bMovingFoot == RFootMove && step.foot.foot_index == msgs::Foot::RIGHT)
+    else if (ref_step_data.PositionData.bMovingFoot == ROBOTIS::MovingFootFlag::RFootMove && step.foot.foot_index == msgs::Foot::RIGHT)
       ref_thor_foot = ref_step_data.PositionData.stRightFootPosition;
-    else if (ref_step_data.PositionData.bMovingFoot == LFootMove && step.foot.foot_index == msgs::Foot::LEFT)
+    else if (ref_step_data.PositionData.bMovingFoot == ROBOTIS::MovingFootFlag::LFootMove && step.foot.foot_index == msgs::Foot::LEFT)
       ref_thor_foot = ref_step_data.PositionData.stLeftFootPosition;
     else
     {
@@ -234,12 +210,12 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
     tf::Transform transform = ref_thor_foot_pose * ref_plan_foot_pose.inverse();
 
     // transform plan to be relative to thor's reference foot pose
-    transformStepPlan(_step_plan, transform);
+    StepPlan::transformStepPlan(_step_plan, transform);
 
     // check if initial state is needed
-    if (ref_step_data.TimeData.bWalkingState == InWalkingEnding)
+    if (ref_step_data.TimeData.bWalkingState == ROBOTIS::WalkingStateFlag::InWalkingEnding)
     {
-      ref_step_data.TimeData.bWalkingState = InWalkingStarting;
+      ref_step_data.TimeData.bWalkingState = ROBOTIS::WalkingStateFlag::InWalkingStarting;
       ref_step_data.TimeData.dAbsStepTime += 2000;
     }
     else // already walking, initial state isn't needed
@@ -252,7 +228,7 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
   itr++; // skip inital step of step plan
   for (; itr != _step_plan.steps.end(); itr++)
   {
-    Thor::StepData step_data_prev = step_data_curr;
+    ROBOTIS::StepData step_data_prev = step_data_curr;
 
     // update with next step
     step_data_curr << *itr;
@@ -264,16 +240,17 @@ bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPla
   }
 
   // append last step data again as ending
-  step_data_curr.PositionData.bMovingFoot = NFootMove;
+  step_data_curr.PositionData.bMovingFoot = ROBOTIS::MovingFootFlag::NFootMove;
   step_data_curr.PositionData.dFootHeight = 0.0;
   step_data_curr.PositionData.dZ_Swap_Amplitude = 0.0;
-  step_data_curr.TimeData.bWalkingState = InWalkingEnding;
+  step_data_curr.TimeData.bWalkingState = ROBOTIS::WalkingStateFlag::InWalkingEnding;
   step_data_curr.TimeData.dAbsStepTime += 2000;
   step_data_list.push_back(step_data_curr);
 
   return true;
 }
 
+/*
 bool operator==(const Thor::StepData& lhs, const Thor::StepData& rhs)
 {
   return (lhs.PositionData.bMovingFoot == rhs.PositionData.bMovingFoot &&
@@ -338,20 +315,20 @@ bool operator==(const std::vector<Thor::StepData>& lhs, const std::vector<Thor::
   }
 
   return true;
-}
+}*/
 
-void toThor(const tf::Pose& pose_in, Thor::Pose3D& pose_out)
+void toThor(const tf::Pose& pose_in, ROBOTIS::Pose3D& pose_out)
 {
   geometry_msgs::Pose msg;
   tf::poseTFToMsg(pose_in, msg);
   toThor(msg, pose_out);
 }
 
-void toThor(const geometry_msgs::Pose& pose_in, Thor::Pose3D& pose_out)
+void toThor(const geometry_msgs::Pose& pose_in, ROBOTIS::Pose3D& pose_out)
 {
-  pose_out.x = pose_in.position.x * 1000.0;
-  pose_out.y = pose_in.position.y * 1000.0;
-  pose_out.z = pose_in.position.z * 1000.0;
+  pose_out.x = pose_in.position.x;
+  pose_out.y = pose_in.position.y;
+  pose_out.z = pose_in.position.z;
   tf::Quaternion q;
   tf::quaternionMsgToTF(pose_in.orientation, q);
   tf::Matrix3x3(q).getRPY(pose_out.roll, pose_out.pitch, pose_out.yaw);
@@ -360,22 +337,22 @@ void toThor(const geometry_msgs::Pose& pose_in, Thor::Pose3D& pose_out)
   pose_out.roll = pose_out.pitch = 0.0;
 }
 
-void toRos(const Thor::Pose3D& pose_in, tf::Pose& pose_out)
+void toRos(const ROBOTIS::Pose3D& pose_in, tf::Pose& pose_out)
 {
   geometry_msgs::Pose msg;
   toRos(pose_in, msg);
   tf::poseMsgToTF(msg, pose_out);
 }
 
-void toRos(const Thor::Pose3D& pose_in, geometry_msgs::Pose& pose_out)
+void toRos(const ROBOTIS::Pose3D& pose_in, geometry_msgs::Pose& pose_out)
 {
-  pose_out.position.x = pose_in.x / 1000.0;
-  pose_out.position.y = pose_in.y / 1000.0;
-  pose_out.position.z = pose_in.z / 1000.0;
+  pose_out.position.x = pose_in.x;
+  pose_out.position.y = pose_in.y;
+  pose_out.position.z = pose_in.z;
   pose_out.orientation = tf::createQuaternionMsgFromRollPitchYaw(pose_in.roll, pose_in.pitch, pose_in.yaw);
 }
 
-std::string toString(const Thor::StepData& step_data)
+std::string toString(const ROBOTIS::StepData& step_data)
 {
   std::stringstream s;
 
@@ -399,8 +376,9 @@ std::string toString(const Thor::StepData& step_data)
   s << "[Sigmo]" << step_data.TimeData.sigmoid_distortion_x << " " << step_data.TimeData.sigmoid_distortion_y << " " << step_data.TimeData.sigmoid_distortion_z << " " << step_data.TimeData.sigmoid_distortion_roll << " " << step_data.TimeData.sigmoid_distortion_pitch << " " << step_data.TimeData.sigmoid_distortion_yaw << std::endl;
 
   return s.str();
-}*/
+}
 }
 
+#include <pluginlib/class_list_macros.h>
 PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin, vigir_footstep_planning::StepPlanMsgPlugin)
 

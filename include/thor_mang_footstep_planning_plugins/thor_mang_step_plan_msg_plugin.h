@@ -37,7 +37,7 @@
 
 #include <vigir_footstep_planning_plugins/step_plan_msg_plugin.h>
 
-#define BODY_HEIGHT 650.0
+#include <thormang3_walking_module/math/StepDataDefine.h>
 
 
 
@@ -49,13 +49,15 @@ class ThorMangStepPlanMsgPlugin
   : public StepPlanMsgPlugin
 {
 public:
+  // typedefs
+  typedef boost::shared_ptr<ThorMangStepPlanMsgPlugin> Ptr;
+  typedef boost::shared_ptr<const ThorMangStepPlanMsgPlugin> ConstPtr;
+
   ThorMangStepPlanMsgPlugin();
   virtual ~ThorMangStepPlanMsgPlugin();
 };
-/*
-void initStepData(Thor::StepData& step_data);
 
-void transformStepPlan(msgs::StepPlan& step_plan, tf::Transform transform);
+void initStepData(ROBOTIS::StepData& step_data);
 
 // serialization wrappers
 template<typename T>
@@ -71,21 +73,22 @@ inline bool operator<<(T& out, const std::vector<uint8_t>& data)
 }
 
 // conversions
-bool operator<<(Thor::StepData& step_data, const msgs::Step& step);
-bool operator<<(std::vector<Thor::StepData>& step_data_list, const msgs::StepPlan& step_plan);
+bool operator<<(ROBOTIS::StepData& step_data, const msgs::Step& step);
+bool operator<<(std::vector<ROBOTIS::StepData>& step_data_list, const msgs::StepPlan& step_plan);
 
+/*
 // other operators
 bool operator==(const Thor::StepData& lhs, const Thor::StepData& rhs);
 bool operator!=(const Thor::StepData& lhs, const Thor::StepData& rhs);
 bool operator==(const std::vector<Thor::StepData>& lhs, const std::vector<Thor::StepData>& rhs);
-
+*/
 // some math helper
-void toThor(const tf::Pose& pose_in, Thor::Pose3D& pose_out);
-void toThor(const geometry_msgs::Pose& pose_in, Thor::Pose3D& pose_out);
-void toRos(const Thor::Pose3D& pose_in, tf::Pose& pose_out);
-void toRos(const Thor::Pose3D& pose_in, geometry_msgs::Pose& pose_out);
+void toThor(const tf::Pose& pose_in, ROBOTIS::Pose3D& pose_out);
+void toThor(const geometry_msgs::Pose& pose_in, ROBOTIS::Pose3D& pose_out);
+void toRos(const ROBOTIS::Pose3D& pose_in, tf::Pose& pose_out);
+void toRos(const ROBOTIS::Pose3D& pose_in, geometry_msgs::Pose& pose_out);
 
-std::string toString(const Thor::StepData& step_data);*/
+std::string toString(const ROBOTIS::StepData& step_data);
 }
 
 #endif
