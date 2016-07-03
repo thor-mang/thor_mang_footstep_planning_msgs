@@ -328,7 +328,8 @@ void toThor(const geometry_msgs::Pose& pose_in, ROBOTIS::Pose3D& pose_out)
 {
   pose_out.x = pose_in.position.x;
   pose_out.y = pose_in.position.y;
-  pose_out.z = pose_in.position.z;
+  /// TODO: Hack as long state estimation doesn't work
+  pose_out.z = 0.0; //pose_in.position.z;
   tf::Quaternion q;
   tf::quaternionMsgToTF(pose_in.orientation, q);
   tf::Matrix3x3(q).getRPY(pose_out.roll, pose_out.pitch, pose_out.yaw);
