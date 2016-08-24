@@ -35,7 +35,7 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
 
-#include <vigir_footstep_planning_plugins/step_plan_msg_plugin.h>
+#include <vigir_footstep_planning_plugins/plugins/step_plan_msg_plugin.h>
 
 #include <robotis_math/step_data_define.h>
 
