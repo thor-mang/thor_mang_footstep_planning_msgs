@@ -71,3 +71,4 @@ bool ThorMangReachability::isReachable(const State& left_foot, const State& righ
 
 #include <pluginlib/class_list_macros.h>
 PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangReachability, vigir_footstep_planning::ReachabilityPlugin)
+
