@@ -22,30 +22,21 @@ ThorMangStepPlanMsgPlugin::~ThorMangStepPlanMsgPlugin()
 
 void initStepData(robotis_framework::StepData& step_data)
 {
-  step_data.position_data.moving_foot = thormang3_walking_module_msgs::StepPositionData::STANDING;
-# warning Figure out what the new data field are used for
-  //step_data.position_data.dFootHeight = 0.0;
-  //step_data.position_data.foot_z_swap = 0.0;
-  //step_data.position_data.body_z_swap = 0.0;
-
-  step_data.position_data.shoulder_swing_gain = 0.0;
-  step_data.position_data.elbow_swing_gain = 0.0;
-
   step_data.position_data.left_foot_pose.x = 0.0;
   step_data.position_data.left_foot_pose.y = 0.093;
-  step_data.position_data.left_foot_pose.z = 0.0;
+  step_data.position_data.left_foot_pose.z = -0.63;
   step_data.position_data.left_foot_pose.roll = 0.0;
   step_data.position_data.left_foot_pose.pitch = 0.0;
   step_data.position_data.left_foot_pose.yaw = 0.0;
 
   step_data.position_data.right_foot_pose.x = 0.0;
   step_data.position_data.right_foot_pose.y = -0.093;
-  step_data.position_data.right_foot_pose.z = 0.0;
+  step_data.position_data.right_foot_pose.z = -0.63;
   step_data.position_data.right_foot_pose.roll = 0.0;
   step_data.position_data.right_foot_pose.pitch = 0.0;
   step_data.position_data.right_foot_pose.yaw = 0.0;
 
-  step_data.position_data.body_pose.z = 0.63;
+  step_data.position_data.body_pose.z = 0.0;
   step_data.position_data.body_pose.roll = 0.0;
   step_data.position_data.body_pose.pitch = 0.0;
   step_data.position_data.body_pose.yaw = 0.0;
@@ -54,34 +45,34 @@ void initStepData(robotis_framework::StepData& step_data)
   step_data.position_data.waist_pitch_angle = 0.0;
   step_data.position_data.waist_yaw_angle = 0.0;
 
+  step_data.position_data.moving_foot = thormang3_walking_module_msgs::StepPositionData::STANDING;
+  step_data.position_data.foot_z_swap = 0.0;
+  step_data.position_data.body_z_swap = 0.0;
+
+  step_data.position_data.shoulder_swing_gain = 0.0;
+  step_data.position_data.elbow_swing_gain = 0.0;
+
   step_data.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING_STARTING;
-  step_data.time_data.abs_step_time = 3.6;
+  step_data.time_data.abs_step_time = 3.2;
   step_data.time_data.dsp_ratio = 0.2;
 
-//  step_data.time_data.start_time_delay_ratio_x = 1.0;
-//  step_data.time_data.start_time_delay_ratio_y = 1.0;
-//  step_data.time_data.start_time_delay_ratio_z = 1.0;
-//  step_data.time_data.start_time_delay_ratio_roll = 1.0;
-//  step_data.time_data.start_time_delay_ratio_pitch = 1.0;
-//  step_data.time_data.start_time_delay_ratio_yaw = 1.0;
+  step_data.time_data.start_time_delay_ratio_x = 0.0;
+  step_data.time_data.start_time_delay_ratio_y = 0.0;
+  step_data.time_data.start_time_delay_ratio_z = 0.0;
+  step_data.time_data.start_time_delay_ratio_roll = 0.0;
+  step_data.time_data.start_time_delay_ratio_pitch = 0.0;
+  step_data.time_data.start_time_delay_ratio_yaw = 0.0;
 
-//  step_data.time_data.finish_time_advance_ratio_x = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_y = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_z = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_roll = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_pitch = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_yaw = 1.0;
+  step_data.time_data.finish_time_advance_ratio_x = 0.0;
+  step_data.time_data.finish_time_advance_ratio_y = 0.0;
+  step_data.time_data.finish_time_advance_ratio_z = 0.0;
+  step_data.time_data.finish_time_advance_ratio_roll = 0.0;
+  step_data.time_data.finish_time_advance_ratio_pitch = 0.0;
+  step_data.time_data.finish_time_advance_ratio_yaw = 0.0;
 }
 
 bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
 {
-  step_data.position_data.moving_foot = step.foot.foot_index == msgs::Foot::LEFT ? static_cast<int>(thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING) : static_cast<int>(thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING);
-  //step_data.position_data.dFootHeight = step.swing_height;
-  //step_data.position_data.dZ_Swap_Amplitude = 0.01;
-
-//  step_data.position_data.dShoulderSwingGain = 0.05;
-//  step_data.position_data.dElbowSwingGain = 0.1;
-
   robotis_framework::Pose3D& swing_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.position_data.left_foot_pose : step_data.position_data.right_foot_pose;
   robotis_framework::Pose3D& stand_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.position_data.right_foot_pose : step_data.position_data.left_foot_pose;
 
@@ -117,32 +108,22 @@ bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
 
 //  step_data.position_data.dFootHeight = step_data.position_data.dFootHeight + foot_dz;
 
-  step_data.position_data.body_pose.z = 0.63;
+  step_data.position_data.body_pose.z = 0.0;
   step_data.position_data.body_pose.roll = 0.0;
   step_data.position_data.body_pose.pitch = 0.0;
   step_data.position_data.body_pose.yaw = 0.5*(step_data.position_data.left_foot_pose.yaw + step_data.position_data.right_foot_pose.yaw);
 
-  step_data.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING;
-  step_data.time_data.abs_step_time = step.step_duration;
-//  step_data.time_data.dsp_ratio = 0.2;
-
-  step_data.position_data.shoulder_swing_gain = 0.0;
-  step_data.position_data.elbow_swing_gain = 0.0;
+  step_data.position_data.waist_roll_angle = 0.0;
   step_data.position_data.waist_pitch_angle = 0.0;
+  step_data.position_data.waist_yaw_angle = 0.0;
 
-//  step_data.time_data.start_time_delay_ratio_x = 1.0;
-//  step_data.time_data.start_time_delay_ratio_y = 1.0;
-//  step_data.time_data.start_time_delay_ratio_z = 1.0;
-//  step_data.time_data.start_time_delay_ratio_roll = 1.0;
-//  step_data.time_data.start_time_delay_ratio_pitch = 1.0;
-//  step_data.time_data.start_time_delay_ratio_yaw = 1.0;
+  step_data.position_data.moving_foot = step.foot.foot_index == msgs::Foot::LEFT ? static_cast<int>(thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING) : static_cast<int>(thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING);
+  step_data.position_data.foot_z_swap = 0.1;
+  step_data.position_data.body_z_swap = 0.01;
 
-//  step_data.time_data.finish_time_advance_ratio_x = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_y = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_z = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_roll = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_pitch = 1.0;
-//  step_data.time_data.finish_time_advance_ratio_yaw = 1.0;
+  step_data.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING;
+  step_data.time_data.abs_step_time += step.step_duration;
+  step_data.time_data.dsp_ratio = 0.2;
 
   return true;
 }
@@ -173,8 +154,6 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
     toThor(_step_plan.start.right.pose, step_data_curr.position_data.right_foot_pose);
     //step_data_curr.position_data.body_pose.z = BODY_HEIGHT + std::min(step_data_curr.position_data.left_foot_pose.z, step_data_curr.position_data.right_foot_pose.z);
     //step_data_curr.position_data.body_pose.yaw = 0.5*(step_data_curr.position_data.right_foot_pose.yaw + step_data_curr.position_data.left_foot_pose.yaw);
-    step_data_curr.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING_STARTING;
-    step_data_curr.time_data.abs_step_time = 2000;
 
     // add start walking entry
     step_data_list.push_back(step_data_curr);
@@ -223,7 +202,7 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
     if (ref_step_data.time_data.walking_state == thormang3_walking_module_msgs::StepTimeData::IN_WALKING_ENDING)
     {
       ref_step_data.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING_STARTING;
-      ref_step_data.time_data.abs_step_time += 2000;
+      ref_step_data.time_data.abs_step_time += 3.2;
     }
     else // already walking, initial state isn't needed
       step_data_list.clear();
@@ -235,23 +214,15 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
   itr++; // skip inital step of step plan
   for (; itr != _step_plan.steps.end(); itr++)
   {
-    robotis_framework::StepData step_data_prev = step_data_curr;
-
     // update with next step
     step_data_curr << *itr;
-
-    // get absolute time index
-    step_data_curr.time_data.abs_step_time += step_data_prev.time_data.abs_step_time;
-
     step_data_list.push_back(step_data_curr);
   }
 
   // append last step data again as ending
   step_data_curr.position_data.moving_foot = thormang3_walking_module_msgs::StepPositionData::STANDING;
-  //step_data_curr.position_data.dFootHeight = 0.0;
-  //step_data_curr.position_data.dZ_Swap_Amplitude = 0.0;
   step_data_curr.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING_ENDING;
-  step_data_curr.time_data.abs_step_time += 2000;
+  step_data_curr.time_data.abs_step_time += 1.0;
   step_data_list.push_back(step_data_curr);
 
   return true;
@@ -336,7 +307,7 @@ void toThor(const geometry_msgs::Pose& pose_in, robotis_framework::Pose3D& pose_
   pose_out.x = pose_in.position.x;
   pose_out.y = pose_in.position.y;
   /// TODO: Hack as long state estimation doesn't work
-  pose_out.z = 0.0; //pose_in.position.z;
+  pose_out.z = -0.63; //pose_in.position.z;
   tf::Quaternion q;
   tf::quaternionMsgToTF(pose_in.orientation, q);
   tf::Matrix3x3(q).getRPY(pose_out.roll, pose_out.pitch, pose_out.yaw);
