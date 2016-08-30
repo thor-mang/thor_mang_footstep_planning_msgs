@@ -1,7 +1,5 @@
 #include <thor_mang_footstep_planning_plugins/thor_mang_heuristic.h>
 
-#include <pluginlib/class_list_macros.h>
-
 
 
 namespace thor_mang_footstep_planning
@@ -55,4 +53,6 @@ double ThorMangHeuristic::getHeuristicValue(const State& from, const State& to, 
 }
 }
 
+#include <pluginlib/class_list_macros.h>
 PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangHeuristic, vigir_footstep_planning::HeuristicPlugin)
+
