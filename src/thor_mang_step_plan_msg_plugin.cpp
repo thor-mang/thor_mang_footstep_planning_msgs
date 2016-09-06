@@ -11,6 +11,8 @@ namespace thor_mang_footstep_planning
 {
 using namespace vigir_footstep_planning;
 
+static constexpr double FOOT_Z = -0.63;
+
 ThorMangStepPlanMsgPlugin::ThorMangStepPlanMsgPlugin()
   : StepPlanMsgPlugin("thor_mang_step_plan_msg_plugin")
 {
@@ -24,14 +26,14 @@ void initStepData(robotis_framework::StepData& step_data)
 {
   step_data.position_data.left_foot_pose.x = 0.0;
   step_data.position_data.left_foot_pose.y = 0.093;
-  step_data.position_data.left_foot_pose.z = -0.63;
+  step_data.position_data.left_foot_pose.z = FOOT_Z;
   step_data.position_data.left_foot_pose.roll = 0.0;
   step_data.position_data.left_foot_pose.pitch = 0.0;
   step_data.position_data.left_foot_pose.yaw = 0.0;
 
   step_data.position_data.right_foot_pose.x = 0.0;
   step_data.position_data.right_foot_pose.y = -0.093;
-  step_data.position_data.right_foot_pose.z = -0.63;
+  step_data.position_data.right_foot_pose.z = FOOT_Z;
   step_data.position_data.right_foot_pose.roll = 0.0;
   step_data.position_data.right_foot_pose.pitch = 0.0;
   step_data.position_data.right_foot_pose.yaw = 0.0;
@@ -76,39 +78,36 @@ bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
   robotis_framework::Pose3D& swing_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.position_data.left_foot_pose : step_data.position_data.right_foot_pose;
   robotis_framework::Pose3D& stand_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.position_data.right_foot_pose : step_data.position_data.left_foot_pose;
 
-//  double foot_dz = swing_foot.z;
-
   toThor(step.foot.pose, swing_foot);
 
-//  foot_dz = swing_foot.z - foot_dz;
+  double foot_dz = swing_foot.z - stand_foot.z;
 
-//  // no significant change in z
-//  if (std::abs(foot_dz) < 0.1)
-//  {
-//    step_data.position_data.body_pose.z = BODY_HEIGHT + stand_foot.z;
-//  }
-//  // step up
-//  else if (foot_dz > 0.0)
-//  {
-//    // if stand foot has already stepped up then don't lift immediatly body to full high
-//    if (stand_foot.z > swing_foot.z - foot_dz)
-//    {
-//      step_data.position_data.body_pose.z = BODY_HEIGHT + 0.25*(stand_foot.z+swing_foot.z);
-//    }
-//    else
-//    {
-//      step_data.position_data.body_pose.z = BODY_HEIGHT + stand_foot.z;
-//    }
-//  }
-//  // step down
-//  else
-//  {
-//    step_data.position_data.body_pose.z = BODY_HEIGHT + swing_foot.z;
-//  }
+  // no significant change in z
+  if (std::abs(foot_dz) < 0.1)
+  {
+    step_data.position_data.body_pose.z = stand_foot.z - FOOT_Z;
+  }
+  // step up
+  else if (foot_dz > 0.0)
+  {
+    // if stand foot is the upper one then don't lift immediatly body to full high
+    if (stand_foot.z > swing_foot.z - foot_dz)
+    {
+      step_data.position_data.body_pose.z = 0.25*(stand_foot.z+swing_foot.z) - FOOT_Z;
+    }
+    else
+    {
+      step_data.position_data.body_pose.z = stand_foot.z - FOOT_Z;
+    }
+  }
+  // step down
+  else
+  {
+    step_data.position_data.body_pose.z = swing_foot.z - FOOT_Z;
+  }
 
-//  step_data.position_data.dFootHeight = step_data.position_data.dFootHeight + foot_dz;
+//  step_data.position_data.foot_z_swap = step_data.position_data.dFootHeight + foot_dz;
 
-  step_data.position_data.body_pose.z = 0.0;
   step_data.position_data.body_pose.roll = 0.0;
   step_data.position_data.body_pose.pitch = 0.0;
   step_data.position_data.body_pose.yaw = 0.5*(step_data.position_data.left_foot_pose.yaw + step_data.position_data.right_foot_pose.yaw);
@@ -118,7 +117,7 @@ bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
   step_data.position_data.waist_yaw_angle = 0.0;
 
   step_data.position_data.moving_foot = step.foot.foot_index == msgs::Foot::LEFT ? static_cast<int>(thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING) : static_cast<int>(thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING);
-  step_data.position_data.foot_z_swap = 0.1;
+  step_data.position_data.foot_z_swap = step.swing_height;
   step_data.position_data.body_z_swap = 0.01;
 
   step_data.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING;
@@ -306,13 +305,12 @@ void toThor(const geometry_msgs::Pose& pose_in, robotis_framework::Pose3D& pose_
 {
   pose_out.x = pose_in.position.x;
   pose_out.y = pose_in.position.y;
-  /// TODO: Hack as long state estimation doesn't work
-  pose_out.z = -0.63; //pose_in.position.z;
+  pose_out.z = pose_in.position.z;
   tf::Quaternion q;
   tf::quaternionMsgToTF(pose_in.orientation, q);
   tf::Matrix3x3(q).getRPY(pose_out.roll, pose_out.pitch, pose_out.yaw);
 
-  /// HACK
+  /// TODO: Hack as long state estimation doesn't work
   pose_out.roll = pose_out.pitch = 0.0;
 }
 
