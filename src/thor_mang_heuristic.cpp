@@ -10,16 +10,16 @@ ThorMangHeuristic::ThorMangHeuristic()
 : HeuristicPlugin("thor_mang_heuristic")
 {}
 
-bool ThorMangHeuristic::loadParams(const vigir_generic_params::ParameterSet& global_params)
+bool ThorMangHeuristic::loadParams(const vigir_generic_params::ParameterSet& params)
 {
-  if (!HeuristicPlugin::loadParams(global_params))
+  if (!HeuristicPlugin::loadParams(params))
     return false;
 
-  global_params.getParam("thor_mang_heuristic/step_cost", step_cost_, 0.1);
-  global_params.getParam("thor_mang_heuristic/diff_angle_cost", diff_angle_cost_, 0.1);
-  global_params.getParam("max_step_dist/x", max_step_dist_x_inv_);
+  params.getParam("thor_mang_heuristic/step_cost", step_cost_, 0.1);
+  params.getParam("thor_mang_heuristic/diff_angle_cost", diff_angle_cost_, 0.1);
+  params.getParam("max_step_dist/x", max_step_dist_x_inv_);
   max_step_dist_x_inv_ = 1.0/max_step_dist_x_inv_;
-  global_params.getParam("max_step_dist/y", max_step_dist_y_inv_);
+  params.getParam("max_step_dist/y", max_step_dist_y_inv_);
   max_step_dist_y_inv_ = 1.0/max_step_dist_y_inv_;
 
   return true;

@@ -11,9 +11,9 @@ ThorMangReachability::ThorMangReachability()
 {
 }
 
-bool ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& global_params)
+bool ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& params)
 {
-  if (!ReachabilityPlugin::loadParams(global_params))
+  if (!ReachabilityPlugin::loadParams(params))
     return false;
 
   ros::NodeHandle nh;
