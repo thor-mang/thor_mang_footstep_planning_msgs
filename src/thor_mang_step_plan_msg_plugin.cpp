@@ -305,7 +305,7 @@ void toThor(const geometry_msgs::Pose& pose_in, robotis_framework::Pose3D& pose_
 {
   pose_out.x = pose_in.position.x;
   pose_out.y = pose_in.position.y;
-  pose_out.z = FOOT_Z;//pose_in.position.z;
+  pose_out.z = FOOT_Z;//pose_in.position.z-FOOT_Z;
   tf::Quaternion q;
   tf::quaternionMsgToTF(pose_in.orientation, q);
   tf::Matrix3x3(q).getRPY(pose_out.roll, pose_out.pitch, pose_out.yaw);
