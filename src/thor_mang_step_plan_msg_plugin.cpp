@@ -80,31 +80,36 @@ bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
 
   toThor(step.foot.pose, swing_foot);
 
-  double foot_dz = swing_foot.z - stand_foot.z;
 
-  // no significant change in z
-  if (std::abs(foot_dz) < 0.1)
-  {
-    step_data.position_data.body_pose.z = stand_foot.z - FOOT_Z;
-  }
-  // step up
-  else if (foot_dz > 0.0)
-  {
-    // if stand foot is the upper one then don't lift immediatly body to full high
-    if (stand_foot.z > swing_foot.z - foot_dz)
-    {
-      step_data.position_data.body_pose.z = 0.25*(stand_foot.z+swing_foot.z) - FOOT_Z;
-    }
-    else
-    {
-      step_data.position_data.body_pose.z = stand_foot.z - FOOT_Z;
-    }
-  }
-  // step down
-  else
-  {
-    step_data.position_data.body_pose.z = swing_foot.z - FOOT_Z;
-  }
+  //MY MODIFS: uncommented following lines because body_pose.z is later overwritten => these lines are useless
+  //and it is anyway better to compute it in the Gait Pattern Generator
+
+//  double foot_dz = swing_foot.z - stand_foot.z;
+//
+//  // no significant change in z
+//  if (std::abs(foot_dz) < 0.01)
+//  {
+//    step_data.position_data.body_pose.z = stand_foot.z - FOOT_Z;
+//  }
+//  // step up
+//  else if (foot_dz > 0.0)
+//  {
+//    // if stand foot is the upper one then don't lift immediatly body to full high
+//    if (stand_foot.z > swing_foot.z - foot_dz)
+//    {
+//      step_data.position_data.body_pose.z = 0.25*(stand_foot.z+swing_foot.z) - FOOT_Z;
+//    }
+//    else
+//    {
+//      step_data.position_data.body_pose.z = stand_foot.z - FOOT_Z;
+//    }
+//  }
+//  // step down
+//  else
+//  {
+//    step_data.position_data.body_pose.z = swing_foot.z - FOOT_Z;
+//  }
+
 
 //  step_data.position_data.foot_z_swap = step_data.position_data.dFootHeight + foot_dz;
 
@@ -189,7 +194,9 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
     // ref foot pose of plan
     tf::Pose ref_plan_foot_pose;
     tf::poseMsgToTF(step.foot.pose, ref_plan_foot_pose);
-    ref_plan_foot_pose.setRotation(tf::createQuaternionFromYaw(tf::getYaw(ref_plan_foot_pose.getRotation()))); /// HACK to clamp everything to flat ground
+
+    //MY MODIFS
+    //ref_plan_foot_pose.setRotation(tf::createQuaternionFromYaw(tf::getYaw(ref_plan_foot_pose.getRotation()))); /// HACK to clamp everything to flat ground
 
     // get transformation 'footstep plan start' -> 'thor start foot'
     tf::Transform transform = ref_thor_foot_pose * ref_plan_foot_pose.inverse();
@@ -305,13 +312,26 @@ void toThor(const geometry_msgs::Pose& pose_in, robotis_framework::Pose3D& pose_
 {
   pose_out.x = pose_in.position.x;
   pose_out.y = pose_in.position.y;
-  pose_out.z = FOOT_Z;//pose_in.position.z;
+
+  //MY MODIFS
+  //pose_out.z = FOOT_Z;//pose_in.position.z;
+  pose_out.z = pose_in.position.z;
+
   tf::Quaternion q;
-  tf::quaternionMsgToTF(pose_in.orientation, q);
+  tf::quaternionMsgToTF(pose_in.orientation , q);
   tf::Matrix3x3(q).getRPY(pose_out.roll, pose_out.pitch, pose_out.yaw);
 
-  /// TODO: Hack as long state estimation doesn't work
-  pose_out.roll = pose_out.pitch = 0.0;
+  //MY MODIFS
+  // /// TODO: Hack as long state estimation doesn't work
+  //pose_out.roll = pose_out.pitch = 0.0;
+
+  //MY MODIFS
+//  ROS_INFO_STREAM("New step msg (pose_in):");
+//  ROS_INFO_STREAM("position: " << pose_in.position );
+//  ROS_INFO_STREAM("orientation: " << pose_in.orientation );
+
+//  ROS_INFO_STREAM("New step msg (pose_out):");
+//  ROS_INFO_STREAM(" " << pose_out );
 }
 
 void toRos(const robotis_framework::Pose3D& pose_in, tf::Pose& pose_out)
