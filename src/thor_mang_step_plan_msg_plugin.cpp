@@ -326,12 +326,12 @@ void toThor(const geometry_msgs::Pose& pose_in, robotis_framework::Pose3D& pose_
   //pose_out.roll = pose_out.pitch = 0.0;
 
   //MY MODIFS
-//  ROS_INFO_STREAM("New step msg (pose_in):");
-//  ROS_INFO_STREAM("position: " << pose_in.position );
-//  ROS_INFO_STREAM("orientation: " << pose_in.orientation );
+  ROS_INFO_STREAM("[footstep planning plugins] New step msg (pose_in):");
+  ROS_INFO_STREAM("position: " << pose_in.position );
+  ROS_INFO_STREAM("orientation: " << pose_in.orientation );
 
-//  ROS_INFO_STREAM("New step msg (pose_out):");
-//  ROS_INFO_STREAM(" " << pose_out );
+  ROS_INFO_STREAM("New step msg (pose_out):");
+  ROS_INFO_STREAM(" " << pose_out );
 }
 
 void toRos(const robotis_framework::Pose3D& pose_in, tf::Pose& pose_out)
