@@ -1,6 +1,6 @@
 #include <thor_mang_footstep_planning_plugins/thor_mang_step_plan_msg_plugin.h>
 
-#include <vigir_footstep_planning_msgs/step_plan.h>
+#include <l3_footstep_planning_libs/modeling/step_plan.h>
 
 #include <thormang3_walking_module_msgs/StepPositionData.h>
 #include <thormang3_walking_module_msgs/StepTimeData.h>
@@ -9,7 +9,7 @@
 
 namespace thor_mang_footstep_planning
 {
-using namespace vigir_footstep_planning;
+using namespace l3_footstep_planning;
 
 static constexpr double FOOT_Z = -0.63;
 
@@ -73,12 +73,20 @@ void initStepData(robotis_framework::StepData& step_data)
   step_data.time_data.finish_time_advance_ratio_yaw = 0.0;
 }
 
-bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
+bool operator<<(robotis_framework::StepData& step_data, const l3::Step& step)
 {
-  robotis_framework::Pose3D& swing_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.position_data.left_foot_pose : step_data.position_data.right_foot_pose;
-  robotis_framework::Pose3D& stand_foot = step.foot.foot_index == msgs::Foot::LEFT ? step_data.position_data.right_foot_pose : step_data.position_data.left_foot_pose;
+  if (step.size() != 1)
+  {
+    ROS_ERROR("[ThorMangStepPlanMsgPlugin] Step must contain exactly 1 step data!");
+    return false;
+  }
 
-  toThor(step.foot.pose, swing_foot);
+  l3::StepData::ConstPtr l3_step_data = step.getStepDataMap().begin()->second;
+
+  robotis_framework::Pose3D& swing_foot = l3_step_data->target->foot_idx == Foot::LEFT ? step_data.position_data.left_foot_pose : step_data.position_data.right_foot_pose;
+  robotis_framework::Pose3D& stand_foot = l3_step_data->target->foot_idx == Foot::LEFT ? step_data.position_data.right_foot_pose : step_data.position_data.left_foot_pose;
+
+  toThor(l3_step_data->target->pose(), swing_foot);
 
   double foot_dz = swing_foot.z - stand_foot.z;
 
@@ -106,7 +114,7 @@ bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
     step_data.position_data.body_pose.z = swing_foot.z - FOOT_Z;
   }
 
-//  step_data.position_data.foot_z_swap = step_data.position_data.dFootHeight + foot_dz;
+  //  step_data.position_data.foot_z_swap = step_data.position_data.dFootHeight + foot_dz;
 
   step_data.position_data.body_pose.roll = 0.0;
   step_data.position_data.body_pose.pitch = 0.0;
@@ -116,41 +124,62 @@ bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step)
   step_data.position_data.waist_pitch_angle = 0.0;
   step_data.position_data.waist_yaw_angle = 0.0;
 
-  step_data.position_data.moving_foot = step.foot.foot_index == msgs::Foot::LEFT ? static_cast<int>(thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING) : static_cast<int>(thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING);
-  step_data.position_data.foot_z_swap = step.swing_height;
+  step_data.position_data.moving_foot = l3_step_data->target->foot_idx == Foot::LEFT ? static_cast<int>(thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING) : static_cast<int>(thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING);
+  step_data.position_data.foot_z_swap = l3_step_data->swing_height;
   step_data.position_data.body_z_swap = 0.01;
 
   step_data.time_data.walking_state = thormang3_walking_module_msgs::StepTimeData::IN_WALKING;
-  step_data.time_data.abs_step_time += step.step_duration;
+  step_data.time_data.abs_step_time += step.getStepDuration();
   step_data.time_data.dsp_ratio = 0.2;
 
   return true;
 }
 
-bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const msgs::StepPlan& step_plan)
+bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const l3_footstep_planning::StepPlan& step_plan)
 {
-  if (step_plan.steps.size() < 1)
+  if (step_plan.getSteps().empty())
   {
-    ROS_ERROR("Got insufficient steps!");
+    ROS_ERROR("[ThorMangStepPlanMsgPlugin] Got insufficient steps!");
     return false;
   }
 
-  msgs::StepPlan _step_plan = step_plan;
+  l3_footstep_planning::StepPlan _step_plan = step_plan;
   robotis_framework::StepData step_data_curr;
+
+  l3::Step::ConstPtr step = step_plan.getSteps().begin()->second;
 
   // generate new plan from scratch
   if (step_data_list.empty())
   {
+    if (step->getSupportMap().empty())
+    {
+      ROS_ERROR("[ThorMangStepPlanMsgPlugin] Initial step does not contain any support leg!");
+      return false;
+    }
+
     // transform plan to be relative to reference start foot pose
-    tf::Pose pose;
-    tf::poseMsgToTF(step_plan.steps[0].foot.pose, pose);
-    tf::Transform transform = pose.inverse();
-    StepPlan::transformStepPlan(_step_plan, transform);
+    _step_plan.transform(step->getSupportMap().begin()->second->pose().inverse());
+
+    if (_step_plan.getStart().size() != 2)
+    {
+      ROS_ERROR("[ThorMangStepPlanMsgPlugin] Step plan start must contain 2 footholds (left + right)!");
+      return false;
+    }
+    else if (_step_plan.getStart()[0].foot_idx != Foot::LEFT)
+    {
+      ROS_ERROR("[ThorMangStepPlanMsgPlugin] Start foothold with idx = 0 is not left foot!");
+      return false;
+    }
+    else if (_step_plan.getStart()[1].foot_idx != Foot::RIGHT)
+    {
+      ROS_ERROR("[ThorMangStepPlanMsgPlugin] Start foothold with idx = 1 is not right foot!");
+      return false;
+    }
 
     // estimate current position
     initStepData(step_data_curr);
-    toThor(_step_plan.start.left.pose, step_data_curr.position_data.left_foot_pose);
-    toThor(_step_plan.start.right.pose, step_data_curr.position_data.right_foot_pose);
+    toThor(_step_plan.getStart()[0].pose(), step_data_curr.position_data.left_foot_pose);
+    toThor(_step_plan.getStart()[1].pose(), step_data_curr.position_data.right_foot_pose);
     //step_data_curr.position_data.body_pose.z = BODY_HEIGHT + std::min(step_data_curr.position_data.left_foot_pose.z, step_data_curr.position_data.right_foot_pose.z);
     //step_data_curr.position_data.body_pose.yaw = 0.5*(step_data_curr.position_data.right_foot_pose.yaw + step_data_curr.position_data.left_foot_pose.yaw);
 
@@ -160,21 +189,28 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
   // stitch plan
   else
   {
+    if (step->getStepDataMap().size() != 1)
+    {
+      ROS_ERROR("[ThorMangStepPlanMsgPlugin] Initial step must containt exactly 1 step data!");
+      return false;
+    }
+
+    l3::StepData::ConstPtr step_data = step->getStepDataMap().begin()->second;
+
     robotis_framework::StepData& ref_step_data = step_data_list.back();
-    const msgs::Step& step = step_plan.steps[0];
 
     // determine thor's internal start foot position
     robotis_framework::Pose3D ref_thor_foot;
     if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::STANDING)
     {
-      if (step.foot.foot_index == msgs::Foot::RIGHT)
+      if (step_data->target->foot_idx == Foot::RIGHT)
         ref_thor_foot = ref_step_data.position_data.right_foot_pose;
       else
         ref_thor_foot = ref_step_data.position_data.left_foot_pose;
     }
-    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING && step.foot.foot_index == msgs::Foot::RIGHT)
+    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING && step_data->target->foot_idx == Foot::RIGHT)
       ref_thor_foot = ref_step_data.position_data.right_foot_pose;
-    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING && step.foot.foot_index == msgs::Foot::LEFT)
+    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING && step_data->target->foot_idx == Foot::LEFT)
       ref_thor_foot = ref_step_data.position_data.left_foot_pose;
     else
     {
@@ -183,19 +219,19 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
     }
 
     // ref foot pose of thor's internal walking engine
-    tf::Pose ref_thor_foot_pose;
+    l3::Pose ref_thor_foot_pose;
     toRos(ref_thor_foot, ref_thor_foot_pose);
 
     // ref foot pose of plan
-    tf::Pose ref_plan_foot_pose;
-    tf::poseMsgToTF(step.foot.pose, ref_plan_foot_pose);
-    ref_plan_foot_pose.setRotation(tf::createQuaternionFromYaw(tf::getYaw(ref_plan_foot_pose.getRotation()))); /// HACK to clamp everything to flat ground
+    l3::Pose ref_plan_foot_pose = step_data->target->pose();
+    ref_plan_foot_pose.setRoll(0.0); /// HACK to clamp everything to flat ground
+    ref_plan_foot_pose.setPitch(0.0); /// HACK to clamp everything to flat ground
 
     // get transformation 'footstep plan start' -> 'thor start foot'
-    tf::Transform transform = ref_thor_foot_pose * ref_plan_foot_pose.inverse();
+    l3::Transform transform = ref_thor_foot_pose * ref_plan_foot_pose.inverse();
 
     // transform plan to be relative to thor's reference foot pose
-    StepPlan::transformStepPlan(_step_plan, transform);
+    _step_plan.transform(transform);
 
     // check if initial state is needed
     if (ref_step_data.time_data.walking_state == thormang3_walking_module_msgs::StepTimeData::IN_WALKING_ENDING)
@@ -209,12 +245,12 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
     step_data_curr = ref_step_data;
   }
 
-  std::vector<msgs::Step>::const_iterator itr = _step_plan.steps.begin();
+  l3::StepQueue::const_iterator itr = _step_plan.getSteps().begin();
   itr++; // skip inital step of step plan
-  for (; itr != _step_plan.steps.end(); itr++)
+  for (; itr != _step_plan.getSteps().end(); itr++)
   {
     // update with next step
-    step_data_curr << *itr;
+    step_data_curr << *itr->second;
     step_data_list.push_back(step_data_curr);
   }
 
@@ -294,39 +330,22 @@ bool operator==(const std::vector<Thor::StepData>& lhs, const std::vector<Thor::
   return true;
 }*/
 
-void toThor(const tf::Pose& pose_in, robotis_framework::Pose3D& pose_out)
+void toThor(const l3::Pose& pose_in, robotis_framework::Pose3D& pose_out)
 {
-  geometry_msgs::Pose msg;
-  tf::poseTFToMsg(pose_in, msg);
-  toThor(msg, pose_out);
-}
-
-void toThor(const geometry_msgs::Pose& pose_in, robotis_framework::Pose3D& pose_out)
-{
-  pose_out.x = pose_in.position.x;
-  pose_out.y = pose_in.position.y;
+  pose_out.x = pose_in.x();
+  pose_out.y = pose_in.y();
   pose_out.z = FOOT_Z;//pose_in.position.z-FOOT_Z;
-  tf::Quaternion q;
-  tf::quaternionMsgToTF(pose_in.orientation, q);
-  tf::Matrix3x3(q).getRPY(pose_out.roll, pose_out.pitch, pose_out.yaw);
+  pose_out.roll = pose_in.roll();
+  pose_out.pitch = pose_in.pitch();
+  pose_out.yaw = pose_in.yaw();
 
   /// TODO: Hack as long state estimation doesn't work
   pose_out.roll = pose_out.pitch = 0.0;
 }
 
-void toRos(const robotis_framework::Pose3D& pose_in, tf::Pose& pose_out)
+void toRos(const robotis_framework::Pose3D& pose_in, l3::Pose& pose_out)
 {
-  geometry_msgs::Pose msg;
-  toRos(pose_in, msg);
-  tf::poseMsgToTF(msg, pose_out);
-}
-
-void toRos(const robotis_framework::Pose3D& pose_in, geometry_msgs::Pose& pose_out)
-{
-  pose_out.position.x = pose_in.x;
-  pose_out.position.y = pose_in.y;
-  pose_out.position.z = pose_in.z;
-  pose_out.orientation = tf::createQuaternionMsgFromRollPitchYaw(pose_in.roll, pose_in.pitch, pose_in.yaw);
+  pose_out = l3::Pose(pose_in.x, pose_in.y, pose_in.z, pose_in.roll, pose_in.pitch, pose_in.yaw);
 }
 
 std::string toString(const robotis_framework::StepData& step_data)
@@ -338,20 +357,27 @@ std::string toString(const robotis_framework::StepData& step_data)
   s << "[ Step] " << step_data.position_data.moving_foot << " " /*<< step_data.position_data.dFootHeight << " "<< step_data.position_data.dZ_Swap_Amplitude << " "*/
     << step_data.position_data.shoulder_swing_gain << " " << step_data.position_data.elbow_swing_gain << std::endl;
 
-  s << "[ Left] " << step_data.position_data.left_foot_pose.x << " " << step_data.position_data.left_foot_pose.y << " " <<step_data.position_data.left_foot_pose.z << " "
+  s << "[ Swap] " << step_data.position_data.foot_z_swap << " " << step_data.position_data.body_z_swap << std::endl;
+
+  s << "[  ZMP] " << step_data.position_data.x_zmp_shift << " " << step_data.position_data.y_zmp_shift << std::endl;
+
+  s << "[ Left] " << step_data.position_data.left_foot_pose.x << " " << step_data.position_data.left_foot_pose.y << " " <<step_data.position_data.left_foot_pose.z << " | "
     << step_data.position_data.left_foot_pose.roll << " " <<step_data.position_data.left_foot_pose.pitch << " " << step_data.position_data.left_foot_pose.yaw << std::endl;
 
-  s << "[Right] " << step_data.position_data.right_foot_pose.x << " " << step_data.position_data.right_foot_pose.y << " " <<step_data.position_data.right_foot_pose.z << " "
+  s << "[Right] " << step_data.position_data.right_foot_pose.x << " " << step_data.position_data.right_foot_pose.y << " " <<step_data.position_data.right_foot_pose.z << " | "
     << step_data.position_data.right_foot_pose.roll << " " <<step_data.position_data.right_foot_pose.pitch << " " << step_data.position_data.right_foot_pose.yaw << std::endl;
 
-  s << "[ Body] " << step_data.position_data.body_pose.z << " " << step_data.position_data.body_pose.roll << " " << step_data.position_data.body_pose.pitch << " " << step_data.position_data.body_pose.yaw << std::endl;
+  s << "[ Body] " << step_data.position_data.body_pose.x << " " << step_data.position_data.body_pose.y << " " << step_data.position_data.body_pose.z << " | "
+    << step_data.position_data.body_pose.roll << " " << step_data.position_data.body_pose.pitch << " " << step_data.position_data.body_pose.yaw << std::endl;
 
-  s << "[ Time]" << step_data.time_data.walking_state << " " << step_data.time_data.abs_step_time << " " << step_data.time_data.dsp_ratio << std::endl;
+  s << "[Waist] " << step_data.position_data.waist_roll_angle << " " << step_data.position_data.waist_pitch_angle << " " << step_data.position_data.waist_yaw_angle << std::endl;
 
-  s << "[Start]" << step_data.time_data.start_time_delay_ratio_x << " " << step_data.time_data.start_time_delay_ratio_y << " " << step_data.time_data.start_time_delay_ratio_z << " "
+  s << "[ Time] " << step_data.time_data.walking_state << " " << step_data.time_data.abs_step_time << " " << step_data.time_data.dsp_ratio << std::endl;
+
+  s << "[Start] " << step_data.time_data.start_time_delay_ratio_x << " " << step_data.time_data.start_time_delay_ratio_y << " " << step_data.time_data.start_time_delay_ratio_z << " "
     << step_data.time_data.start_time_delay_ratio_roll << " " << step_data.time_data.start_time_delay_ratio_pitch << " " << step_data.time_data.start_time_delay_ratio_yaw << std::endl;
 
-  s << "[  End]" << step_data.time_data.finish_time_advance_ratio_x << " " << step_data.time_data.finish_time_advance_ratio_y << " " << step_data.time_data.finish_time_advance_ratio_z << " "
+  s << "[  End] " << step_data.time_data.finish_time_advance_ratio_x << " " << step_data.time_data.finish_time_advance_ratio_y << " " << step_data.time_data.finish_time_advance_ratio_z << " "
     << step_data.time_data.finish_time_advance_ratio_roll << " " << step_data.time_data.finish_time_advance_ratio_pitch << " " << step_data.time_data.finish_time_advance_ratio_yaw << std::endl;
 
   return s.str();
@@ -359,5 +385,5 @@ std::string toString(const robotis_framework::StepData& step_data)
 }
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin, vigir_footstep_planning::StepPlanMsgPlugin)
+PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin, l3_footstep_planning::StepPlanMsgPlugin)
 

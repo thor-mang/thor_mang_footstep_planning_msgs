@@ -4,8 +4,6 @@
 
 namespace thor_mang_footstep_planning
 {
-using namespace vigir_footstep_planning;
-
 ThorMangReachability::ThorMangReachability()
   : ReachabilityPlugin("thor_mang_reachability")
 {
@@ -22,53 +20,37 @@ bool ThorMangReachability::loadParams(const vigir_generic_params::ParameterSet& 
   return true;
 }
 
-bool ThorMangReachability::isReachable(const State& /*current*/, const State& /*next*/) const
+bool ThorMangReachability::isReachable(const PlanningState& state) const
 {
+  Step::ConstPtr step = state.getStep();
+
+  if (!step || step->empty())
+    return true;
+
+  for (const Step::StepDataPair& p : *step)
+  {
+    StepData::ConstPtr step_data = p.second;
+
+    // restrict to RTR movement
+    if (std::abs(step_data->dx) > 0.01 && std::abs(step_data->dy) > 0.01)
+      return false;
+
+    if (std::abs(step_data->dx) > 0.05 && std::abs(step_data->dyaw) > 0.01)
+      return false;
+
+    if (std::abs(step_data->dy) > 0.01 && std::abs(step_data->dyaw) > 0.01)
+      return false;
+  }
+
   return true;
 }
 
-bool ThorMangReachability::isReachable(const State& left_foot, const State& right_foot, const State& swing_foot) const
+bool ThorMangReachability::isReachable(const State& state) const
 {
-  const State& stand_foot = swing_foot.getLeg() == LEFT ? right_foot : left_foot;
-  const State& swing_foot_before = swing_foot.getLeg() == LEFT ? left_foot : right_foot;
-
-  msgs::Foot _stand_foot;
-  stand_foot.getFoot(_stand_foot);
-
-  msgs::Foot _swing_foot;
-  swing_foot.getFoot(_swing_foot);
-
-  // reconstruct delta step
-  geometry_msgs::Pose dstep;
-  getDeltaStep(_stand_foot, _swing_foot, dstep);
-  double dstep_yaw = tf::getYaw(dstep.orientation);
-
-  // forbid toe in
-  if (dstep_yaw < -0.001)
-    return false;
-
-  msgs::Foot _swing_foot_before;
-  swing_foot_before.getFoot(_swing_foot_before);
-
-  // reconstruct delta for swing foot
-  geometry_msgs::Pose dswing;
-  getDeltaStep(_swing_foot_before, _swing_foot, dswing);
-  double dswing_yaw = tf::getYaw(dswing.orientation);
-
-  // restrict to RTR movement
-  if (std::abs(dswing.position.x) > 0.01 && std::abs(dswing.position.y) > 0.01)
-    return false;
-
-  if (std::abs(dswing.position.x) > 0.05 && std::abs(dswing_yaw) > 0.01)
-    return false;
-
-  if (std::abs(dswing.position.y) > 0.01 && std::abs(dswing_yaw) > 0.01)
-    return false;
-
   return true;
 }
 }
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangReachability, vigir_footstep_planning::ReachabilityPlugin)
+PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangReachability, l3_footstep_planning::ReachabilityPlugin)
 

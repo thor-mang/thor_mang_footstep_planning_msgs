@@ -1,5 +1,5 @@
 //=================================================================================================
-// Copyright (c) 2016, Alexander Stumpf, TU Darmstadt
+// Copyright (c) 2019, Alexander Stumpf, TU Darmstadt
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,13 @@
 #ifndef THOR_MANG_REACHABILITY_H__
 #define THOR_MANG_REACHABILITY_H__
 
-#include <ros/ros.h>
-
-#include <vigir_footstep_planning_lib/math.h>
-
-#include <vigir_footstep_planning_plugins/plugins/reachability_plugin.h>
-
-#include <vigir_footstep_planning_msgs/footstep_planning_msgs.h>
+#include <l3_footstep_planning_plugins/base/reachability_plugin.h>
 
 
 
 namespace thor_mang_footstep_planning
 {
-using namespace vigir_footstep_planning;
+using namespace l3_footstep_planning;
 
 class ThorMangReachability
   : public ReachabilityPlugin
@@ -51,8 +45,8 @@ public:
 
   bool loadParams(const vigir_generic_params::ParameterSet& params = vigir_generic_params::ParameterSet()) override;
 
-  bool isReachable(const State& current, const State& next) const override;
-  bool isReachable(const State& left_foot, const State& right_foot, const State& swing_foot) const override;
+  bool isReachable(const PlanningState& state) const override;
+  bool isReachable(const State& state) const override;
 
 protected:
   double foot_seperation_;

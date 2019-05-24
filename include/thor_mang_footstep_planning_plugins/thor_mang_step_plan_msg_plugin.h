@@ -1,5 +1,5 @@
 //=================================================================================================
-// Copyright (c) 2016, Alexander Stumpf, TU Darmstadt
+// Copyright (c) 2019, Alexander Stumpf, TU Darmstadt
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,9 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
 
-#include <vigir_footstep_planning_plugins/plugins/step_plan_msg_plugin.h>
+#include <l3_libs/types/types.h>
+#include <l3_footstep_planning_libs/modeling/step_plan.h>
+#include <l3_footstep_planning_plugins/base/step_plan_msg_plugin.h>
 
 #include <robotis_math/step_data_define.h>
 
@@ -43,7 +45,9 @@
 
 namespace thor_mang_footstep_planning
 {
-using namespace vigir_footstep_planning;
+using namespace l3_footstep_planning;
+
+enum Foot { LEFT = 0, RIGHT = 1 };
 
 class ThorMangStepPlanMsgPlugin
   : public StepPlanMsgPlugin
@@ -73,8 +77,8 @@ inline bool operator<<(T& out, const std::vector<uint8_t>& data)
 }
 
 // conversions
-bool operator<<(robotis_framework::StepData& step_data, const msgs::Step& step);
-bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const msgs::StepPlan& step_plan);
+bool operator<<(robotis_framework::StepData& step_data, const l3::Step& step);
+bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const l3_footstep_planning::StepPlan& step_plan);
 
 /*
 // other operators
@@ -82,11 +86,9 @@ bool operator==(const Thor::StepData& lhs, const Thor::StepData& rhs);
 bool operator!=(const Thor::StepData& lhs, const Thor::StepData& rhs);
 bool operator==(const std::vector<Thor::StepData>& lhs, const std::vector<Thor::StepData>& rhs);
 */
-// some math helper
-void toThor(const tf::Pose& pose_in, robotis_framework::Pose3D& pose_out);
-void toThor(const geometry_msgs::Pose& pose_in, robotis_framework::Pose3D& pose_out);
-void toRos(const robotis_framework::Pose3D& pose_in, tf::Pose& pose_out);
-void toRos(const robotis_framework::Pose3D& pose_in, geometry_msgs::Pose& pose_out);
+// some helper
+void toThor(const l3::Pose& pose_in, robotis_framework::Pose3D& pose_out);
+void toRos(const robotis_framework::Pose3D& pose_in, l3::Pose& pose_out);
 
 std::string toString(const robotis_framework::StepData& step_data);
 }

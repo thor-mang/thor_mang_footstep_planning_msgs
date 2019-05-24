@@ -1,5 +1,5 @@
 //=================================================================================================
-// Copyright (c) 2016, Alexander Stumpf, TU Darmstadt
+// Copyright (c) 2019, Alexander Stumpf, TU Darmstadt
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without
@@ -29,15 +29,13 @@
 #ifndef THOR_MANG_HEURISTIC_H__
 #define THOR_MANG_HEURISTIC_H__
 
-#include <vigir_footstep_planning_lib/math.h>
-
-#include <vigir_footstep_planning_plugins/plugins/heuristic_plugin.h>
+#include <l3_footstep_planning_plugins/base/heuristic_plugin.h>
 
 
 
 namespace thor_mang_footstep_planning
 {
-using namespace vigir_footstep_planning;
+using namespace l3_footstep_planning;
 
 class ThorMangHeuristic
   : public HeuristicPlugin
@@ -47,7 +45,7 @@ public:
 
   bool loadParams(const vigir_generic_params::ParameterSet& params = vigir_generic_params::ParameterSet()) override;
 
-  double getHeuristicValue(const State& from, const State& to, const State& start, const State& goal) const override;
+  double getHeuristicValue(const Foothold& from, const Foothold& to, const State& start, const State& goal) const override;
 
 protected:
   double step_cost_;

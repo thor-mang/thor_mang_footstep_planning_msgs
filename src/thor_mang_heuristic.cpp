@@ -4,7 +4,7 @@
 
 namespace thor_mang_footstep_planning
 {
-using namespace vigir_footstep_planning;
+using namespace l3_footstep_planning;
 
 ThorMangHeuristic::ThorMangHeuristic()
 : HeuristicPlugin("thor_mang_heuristic")
@@ -15,26 +15,26 @@ bool ThorMangHeuristic::loadParams(const vigir_generic_params::ParameterSet& par
   if (!HeuristicPlugin::loadParams(params))
     return false;
 
-  params.getParam("thor_mang_heuristic/step_cost", step_cost_, 0.1);
-  params.getParam("thor_mang_heuristic/diff_angle_cost", diff_angle_cost_, 0.1);
-  params.getParam("max_step_dist/x", max_step_dist_x_inv_);
+  getParam("step_cost", step_cost_, 0.1);
+  getParam("diff_angle_cost", diff_angle_cost_, 0.0);
+
+  getParam("max_step_dist_x", max_step_dist_x_inv_, 0.1);
   max_step_dist_x_inv_ = 1.0/max_step_dist_x_inv_;
-  params.getParam("max_step_dist/y", max_step_dist_y_inv_);
+  getParam("max_step_dist_y", max_step_dist_y_inv_, 0.1);
   max_step_dist_y_inv_ = 1.0/max_step_dist_y_inv_;
 
   return true;
 }
 
-double ThorMangHeuristic::getHeuristicValue(const State& from, const State& to, const State& /*start*/, const State& /*goal*/) const
+double ThorMangHeuristic::getHeuristicValue(const Foothold& from, const Foothold& to, const State& /*start*/, const State& /*goal*/) const
 {
   if (from == to)
     return 0.0;
 
   // determine swing dist
-  tf::Transform dstep;
-  getDeltaStep(from.getPose(), to.getPose(), dstep);
-  double expected_steps_x = std::abs(dstep.getOrigin().x()) * max_step_dist_x_inv_;
-  double expected_steps_y = std::abs(dstep.getOrigin().y()) * max_step_dist_y_inv_;
+  Transform dstep = Foothold::getDelta(from, to);
+  double expected_steps_x = std::abs(dstep.x()) * max_step_dist_x_inv_;
+  double expected_steps_y = std::abs(dstep.y()) * max_step_dist_y_inv_;
 
   if (expected_steps_x > 0.1 && expected_steps_y > 0.1) // rotation suggested
     return expected_steps_y * step_cost_;
@@ -46,7 +46,7 @@ double ThorMangHeuristic::getHeuristicValue(const State& from, const State& to, 
   else // rotate towards goal orientation
   {
     //ROS_INFO("%f", tf::getYaw(dstep.getRotation()));
-    return std::abs(tf::getYaw(dstep.getRotation())) * diff_angle_cost_;
+    return std::abs(dstep.yaw()) * diff_angle_cost_;
   }
 
   return 0.0;
@@ -54,5 +54,5 @@ double ThorMangHeuristic::getHeuristicValue(const State& from, const State& to, 
 }
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangHeuristic, vigir_footstep_planning::HeuristicPlugin)
+PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangHeuristic, l3_footstep_planning::HeuristicPlugin)
 

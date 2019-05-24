@@ -1,17 +1,17 @@
 <library path="lib/libthor_mang_footstep_planning_plugins">
-  <class name="thor_mang_reachability" type="thor_mang_footstep_planning::ThorMangReachability" base_class_type="vigir_footstep_planning::ReachabilityPlugin">
+  <class name="thor_mang_reachability" type="thor_mang_footstep_planning::ThorMangReachability" base_class_type="l3_footstep_planning::ReachabilityPlugin">
     <description>
       ThorMangReachability: This plugins maps the special movement capabilities of THORMANG3.
     </description>
   </class>
 
-  <class name="thor_mang_heuristic" type="thor_mang_footstep_planning::ThorMangHeuristic" base_class_type="vigir_footstep_planning::HeuristicPlugin">
+  <class name="thor_mang_heuristic" type="thor_mang_footstep_planning::ThorMangHeuristic" base_class_type="l3_footstep_planning::HeuristicPlugin">
     <description>
       ThorMangHeuristic: Estimates remaining rotate, translate, rotate movement needed by THORMANG3 to get to goal state.
     </description>
   </class>
 
-  <class name="thor_mang_step_plan_msg_plugin" type="thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin" base_class_type="vigir_footstep_planning::StepPlanMsgPlugin">
+  <class name="thor_mang_step_plan_msg_plugin" type="thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin" base_class_type="l3_footstep_planning::StepPlanMsgPlugin">
     <description>
       ThorMangStepPlanMsgPlugin: Plugin for (un-)packing thor mang messages
     </description>
