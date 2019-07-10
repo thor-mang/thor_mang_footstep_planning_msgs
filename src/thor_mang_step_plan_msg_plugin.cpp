@@ -228,7 +228,7 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
     ref_plan_foot_pose.setPitch(0.0); /// HACK to clamp everything to flat ground
 
     // get transformation 'footstep plan start' -> 'thor start foot'
-    l3::Transform transform = ref_thor_foot_pose * ref_plan_foot_pose.inverse();
+    l3::Transform transform = ref_thor_foot_pose * ref_plan_foot_pose.inverse(); /// @todo: check!
 
     // transform plan to be relative to thor's reference foot pose
     _step_plan.transform(transform);
