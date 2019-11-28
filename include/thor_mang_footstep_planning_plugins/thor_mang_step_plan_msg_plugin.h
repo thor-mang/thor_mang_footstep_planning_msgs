@@ -37,7 +37,6 @@
 
 #include <l3_libs/types/types.h>
 #include <l3_footstep_planning_libs/modeling/step_plan.h>
-#include <l3_footstep_planning_plugins/base/step_plan_msg_plugin.h>
 
 #include <robotis_math/step_data_define.h>
 
@@ -50,7 +49,6 @@ using namespace l3_footstep_planning;
 enum Foot { LEFT = 0, RIGHT = 1 };
 
 class ThorMangStepPlanMsgPlugin
-  : public StepPlanMsgPlugin
 {
 public:
   // typedefs

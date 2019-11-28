@@ -10,10 +10,4 @@
       ThorMangHeuristic: Estimates remaining rotate, translate, rotate movement needed by THORMANG3 to get to goal state.
     </description>
   </class>
-
-  <class name="thor_mang_step_plan_msg_plugin" type="thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin" base_class_type="l3_footstep_planning::StepPlanMsgPlugin">
-    <description>
-      ThorMangStepPlanMsgPlugin: Plugin for (un-)packing thor mang messages
-    </description>
-  </class>
 </library>

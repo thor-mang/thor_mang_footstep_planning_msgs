@@ -14,7 +14,6 @@ using namespace l3_footstep_planning;
 static constexpr double FOOT_Z = -0.63;
 
 ThorMangStepPlanMsgPlugin::ThorMangStepPlanMsgPlugin()
-  : StepPlanMsgPlugin("thor_mang_step_plan_msg_plugin")
 {
 }
 
@@ -383,7 +382,3 @@ std::string toString(const robotis_framework::StepData& step_data)
   return s.str();
 }
 }
-
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(thor_mang_footstep_planning::ThorMangStepPlanMsgPlugin, l3_footstep_planning::StepPlanMsgPlugin)
-
