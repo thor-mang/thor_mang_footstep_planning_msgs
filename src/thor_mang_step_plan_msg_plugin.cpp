@@ -74,7 +74,7 @@ void initStepData(robotis_framework::StepData& step_data)
 
 bool operator<<(robotis_framework::StepData& step_data, const l3::Step& step)
 {
-  if (step.size() != 1)
+  if (step.stepDataSize() != 1)
   {
     ROS_ERROR("[ThorMangStepPlanMsgPlugin] Step must contain exactly 1 step data!");
     return false;

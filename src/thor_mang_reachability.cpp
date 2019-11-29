@@ -24,7 +24,7 @@ bool ThorMangReachability::isReachable(const PlanningState& state) const
 {
   Step::ConstPtr step = state.getStep();
 
-  if (!step || step->empty())
+  if (!step || !step->hasStepData())
     return true;
 
   for (const Step::StepDataPair& p : *step)
