@@ -339,7 +339,7 @@ void toThor(const l3::Pose& pose_in, robotis_framework::Pose3D& pose_out)
 
   /// TODO: Hack as long state estimation doesn't work
   pose_out.roll = 0.0;
-  // pose_out.pitch = 0.0;
+  pose_out.pitch = 0.0;
 }
 
 void toRos(const robotis_framework::Pose3D& pose_in, l3::Pose& pose_out) { pose_out = l3::Pose(pose_in.x, pose_in.y, pose_in.z, pose_in.roll, pose_in.pitch, pose_in.yaw); }
