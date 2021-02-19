@@ -76,8 +76,8 @@ bool operator<<(robotis_framework::StepData& step_data, const l3::Step& step)
 
   l3::StepData::ConstPtr l3_step_data = step.getStepDataMap().begin()->second;
 
-  robotis_framework::Pose3D& swing_foot = l3_step_data->target->foot_idx == Foot::LEFT ? step_data.position_data.left_foot_pose : step_data.position_data.right_foot_pose;
-  robotis_framework::Pose3D& stand_foot = l3_step_data->target->foot_idx == Foot::LEFT ? step_data.position_data.right_foot_pose : step_data.position_data.left_foot_pose;
+  robotis_framework::Pose3D& swing_foot = l3_step_data->target->idx == Foot::LEFT ? step_data.position_data.left_foot_pose : step_data.position_data.right_foot_pose;
+  robotis_framework::Pose3D& stand_foot = l3_step_data->target->idx == Foot::LEFT ? step_data.position_data.right_foot_pose : step_data.position_data.left_foot_pose;
 
   toThor(l3_step_data->target->pose(), swing_foot);
 
@@ -117,7 +117,7 @@ bool operator<<(robotis_framework::StepData& step_data, const l3::Step& step)
   step_data.position_data.waist_pitch_angle = 0.0;
   step_data.position_data.waist_yaw_angle = 0.0;
 
-  step_data.position_data.moving_foot = l3_step_data->target->foot_idx == Foot::LEFT ? static_cast<int>(thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING) :
+  step_data.position_data.moving_foot = l3_step_data->target->idx == Foot::LEFT ? static_cast<int>(thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING) :
                                                                                        static_cast<int>(thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING);
   step_data.position_data.foot_z_swap = l3_step_data->swing_height;
   step_data.position_data.body_z_swap = 0.01;
@@ -159,12 +159,12 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
       ROS_ERROR("[ThorMangStepPlanMsgPlugin] Step plan start must contain 2 footholds (left + right)!");
       return false;
     }
-    else if (_step_plan.getStart()[0].foot_idx != Foot::LEFT)
+    else if (_step_plan.getStart()[0].idx != Foot::LEFT)
     {
       ROS_ERROR("[ThorMangStepPlanMsgPlugin] Start foothold with idx = 0 is not left foot!");
       return false;
     }
-    else if (_step_plan.getStart()[1].foot_idx != Foot::RIGHT)
+    else if (_step_plan.getStart()[1].idx != Foot::RIGHT)
     {
       ROS_ERROR("[ThorMangStepPlanMsgPlugin] Start foothold with idx = 1 is not right foot!");
       return false;
@@ -197,14 +197,14 @@ bool operator<<(std::vector<robotis_framework::StepData>& step_data_list, const 
     robotis_framework::Pose3D ref_thor_foot;
     if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::STANDING)
     {
-      if (step_data->target->foot_idx == Foot::RIGHT)
+      if (step_data->target->idx == Foot::RIGHT)
         ref_thor_foot = ref_step_data.position_data.right_foot_pose;
       else
         ref_thor_foot = ref_step_data.position_data.left_foot_pose;
     }
-    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING && step_data->target->foot_idx == Foot::RIGHT)
+    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::RIGHT_FOOT_SWING && step_data->target->idx == Foot::RIGHT)
       ref_thor_foot = ref_step_data.position_data.right_foot_pose;
-    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING && step_data->target->foot_idx == Foot::LEFT)
+    else if (ref_step_data.position_data.moving_foot == thormang3_walking_module_msgs::StepPositionData::LEFT_FOOT_SWING && step_data->target->idx == Foot::LEFT)
       ref_thor_foot = ref_step_data.position_data.left_foot_pose;
     else
     {
